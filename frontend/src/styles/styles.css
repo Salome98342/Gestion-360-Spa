@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff0f5; /* Lavanda/Rosa muy claro */
+    color: #4a4a4a;
+}
+
+/* Estilos personalizados para el scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #fbcfe8; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #f472b6; }
+
+/* Efecto de ticket/tirilla virtual */
+.receipt-container {
+    font-family: 'Space Mono', monospace;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    position: relative;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+.receipt-container::before, .receipt-container::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background-size: 16px 16px;
+}
+.receipt-container::before {
+    top: -8px;
+    background-image: radial-gradient(circle at 8px 0, transparent 8px, #fff 9px);
+}
+.receipt-container::after {
+    bottom: -8px;
+    background-image: radial-gradient(circle at 8px 16px, transparent 8px, #fff 9px);
+}
+.dashed-line {
+    border-bottom: 2px dashed #cbd5e1;
+    margin: 1rem 0;
+}
+
+.calendar-day.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background-color: #f3f4f6;
+}
+.calendar-day.selected {
+    background-color: #db2777;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 6px -1px rgba(219, 39, 119, 0.4);
+}
+
+/* Transiciones suaves */
+.view-section {
+    display: none;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+.view-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+

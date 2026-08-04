@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spa de Uñas - Agenda tu Cita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-spa text-pink-500 text-2xl"></i>
+                <h1 class="text-2xl font-bold text-gray-800 tracking-tight">Glow<span class="text-pink-500">Spa</span></h1>
+            </div>
+            <button id="btn-back" class="hidden text-sm font-medium text-gray-500 hover:text-pink-600 transition-colors">
+                <i class="fas fa-arrow-left mr-1"></i> Volver
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 mt-8">
+        
+        <!-- VISTA 1: FORMULARIO DE RESERVA -->
+        <section id="view-booking" class="view-section active">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden p-6 md:p-10">
+                <h2 class="text-2xl font-semibold mb-6 text-gray-800 border-b pb-4">
+                    <i class="fa-regular fa-calendar-check text-pink-400 mr-2"></i> Agendar Nueva Cita
+                </h2>
+
+                <form id="booking-form" onsubmit="event.preventDefault(); showReceipt();">
+                    
+                    <!-- PASO 1: Servicio -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-700 mb-4">1. Selecciona el servicio</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="services-container">
+                            <!-- Los servicios se inyectan con JS -->
+                        </div>
+                        <p id="error-service" class="text-red-500 text-sm mt-2 hidden"><i class="fas fa-exclamation-circle"></i> Por favor selecciona un servicio.</p>
+                    </div>
+
+                    <!-- PASO 2: Calendario y Fecha -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-700 mb-4">2. Selecciona la fecha y hora</h3>
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <!-- Calendario -->
+                            <div class="w-full md:w-1/2 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                                <div class="flex justify-between items-center mb-4">
+                                    <button type="button" onclick="changeMonth(-1)" class="p-2 text-gray-400 hover:text-pink-500"><i class="fas fa-chevron-left"></i></button>
+                                    <h4 id="calendar-month-year" class="font-semibold text-gray-700 capitalize"></h4>
+                                    <button type="button" onclick="changeMonth(1)" class="p-2 text-gray-400 hover:text-pink-500"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-400 mb-2">
+                                    <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+                                </div>
+                                <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+                                    <!-- Días inyectados con JS -->
+                                </div>
+                                <p id="error-date" class="text-red-500 text-sm mt-2 hidden"><i class="fas fa-exclamation-circle"></i> Selecciona una fecha.</p>
+                            </div>
+
+                            <!-- Horarios Disponibles -->
+                            <div class="w-full md:w-1/2 bg-gray-50 p-4 rounded-2xl border border-gray-100 flex flex-col">
+                                <h4 class="font-semibold text-gray-700 mb-4">Horarios Disponibles</h4>
+                                <div id="time-slots-container" class="flex-1 overflow-y-auto max-h-64 pr-2">
+                                    <div class="h-full flex flex-col items-center justify-center text-gray-400 text-sm text-center">
+                                        <i class="far fa-clock text-3xl mb-2 opacity-50"></i>
+                                        <p>Selecciona una fecha y un servicio para ver los horarios disponibles.</p>
+                                    </div>
+                                </div>
+                                <p id="error-time" class="text-red-500 text-sm mt-2 hidden"><i class="fas fa-exclamation-circle"></i> Selecciona una hora.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASO 3: Datos Personales (AHORA CON VALIDACIÓN ESTRICTA) -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-700 mb-4">3. Tus Datos</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Nombre Completo *</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="far fa-user text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="client-name" required maxlength="50" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-300 focus:border-pink-500 outline-none transition-all" placeholder="Ej: María Gómez">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Teléfono (WhatsApp) *</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fab fa-whatsapp text-gray-400"></i>
+                                    </div>
+                                    <!-- Patrón estricto numérico para teléfonos -->
+                                    <input type="tel" id="client-phone" required pattern="[0-9\s\+\-]{10,15}" maxlength="15" title="Ingresa un número válido de 10 a 15 dígitos" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-300 focus:border-pink-500 outline-none transition-all" placeholder="Ej: 300 123 4567">
+                                </div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Recomendaciones o notas (Opcional)</label>
+                                <!-- Límite de caracteres en notas -->
+                                <textarea id="client-notes" rows="2" maxlength="150" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-300 focus:border-pink-500 outline-none transition-all" placeholder="Ej: Quiero un diseño con pedrería, necesito retirar semipermanente anterior..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón Enviar -->
+                    <div class="mt-8 pt-6 border-t flex justify-end">
+                        <button type="submit" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 w-full md:w-auto flex items-center justify-center gap-2">
+                            <span>Continuar con la reserva</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- VISTA 2: TIRILLA VIRTUAL Y PAGO -->
+        <section id="view-receipt" class="view-section">
+            <div class="max-w-md mx-auto">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Confirma tu Cita</h2>
+                    <p class="text-gray-500 mt-1">Revisa los datos de tu tirilla virtual</p>
+                </div>
+
+                <!-- Tirilla -->
+                <div class="receipt-container p-6 mx-4 md:mx-0 mt-8 mb-8 text-sm text-gray-700">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-spa text-3xl text-gray-800 mb-2"></i>
+                        <h3 class="font-bold text-xl uppercase tracking-widest">NOMBRE</h3>
+                        <p class="text-xs">Tirilla de Reserva Virtual</p>
+                        <p class="text-xs mt-1" id="receipt-date-gen"></p>
+                    </div>
+
+                    <div class="dashed-line"></div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="font-bold">Cliente:</span>
+                            <span id="r-name" class="text-right"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-bold">Teléfono:</span>
+                            <span id="r-phone" class="text-right"></span>
+                        </div>
+                    </div>
+
+                    <div class="dashed-line"></div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between font-bold">
+                            <span>Servicio</span>
+                            <span>Precio</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span id="r-service-name" class="pr-4 uppercase text-xs"></span>
+                            <span id="r-price"></span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            Duración est.: <span id="r-duration"></span> min
+                        </div>
+                    </div>
+
+                    <div class="dashed-line"></div>
+
+                    <div class="bg-gray-50 p-3 rounded text-center">
+                        <p class="font-bold mb-1">FECHA DE LA CITA</p>
+                        <p id="r-appointment-date" class="text-lg"></p>
+                        <p id="r-appointment-time" class="text-xl font-bold mt-1"></p>
+                    </div>
+
+                    <div class="dashed-line"></div>
+
+                    <div class="flex justify-between items-center text-lg font-bold">
+                        <span>TOTAL A PAGAR:</span>
+                        <span id="r-total" class="text-xl"></span>
+                    </div>
+
+                    <div class="mt-6 text-center text-xs text-gray-500">
+                        <p>Gracias por elegirnos.</p>
+                        <p>¡Te esperamos para consentirte!</p>
+                    </div>
+                </div>
+
+                <!-- Pasarela simulada -->
+                <div class="bg-white p-6 rounded-2xl shadow-lg mx-4 md:mx-0">
+                    <h4 class="font-semibold text-gray-800 mb-4"><i class="fas fa-credit-card text-pink-500 mr-2"></i>Contiua con la reseva</h4>
+                    <button onclick="processPayment()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl shadow transition-colors flex justify-center items-center gap-2 mb-3">
+                        <i class="fas fa-lock"></i> Confirmar Cita
+                    </button>
+                    <button onclick="goBackToForm()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-colors">
+                        Cancelar / Editar datos
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA 3: ÉXITO -->
+        <section id="view-success" class="view-section">
+            <div class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden p-8 text-center">
+                <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-check text-4xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Cita Confirmada!</h2>
+                <p class="text-gray-600 mb-6">Tu reserva ha quedado guardada en nuestro calendario global. Te hemos enviado un mensaje de confirmación por WhatsApp.</p>
+                <div class="bg-pink-50 rounded-xl p-4 mb-6">
+                    <p class="text-sm text-pink-800">Recuerda llegar 5 minutos antes de tu hora reservada. ¡Nos vemos pronto!</p>
+                </div>
+                <button onclick="resetApp()" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors">
+                    Agendar Otra Cita
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Overlay de carga simulado -->
+    <div id="loading-overlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] hidden items-center justify-center">
+        <div class="text-center">
+            <i class="fas fa-circle-notch fa-spin text-5xl text-pink-600 mb-4"></i>
+            <p class="text-lg font-semibold text-gray-700">Procesando pago...</p>
+        </div>
+    </div>
+
+    <script src="./serializacion.js"></script>
+    <script src="./app.js"></script>
+</body>
+</html>

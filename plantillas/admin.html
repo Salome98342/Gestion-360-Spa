@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow Spa - Panel de Administración</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css"> 
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <header class="bg-gray-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-spa text-pink-500 text-2xl"></i>
+                <h1 class="text-2xl font-bold tracking-tight">Glow<span class="text-pink-500">Admin</span></h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Turnos en Vivo -->
+        <section class="lg:col-span-2">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 gap-4">
+                    <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-calendar-alt text-pink-500 mr-2"></i>Gestión de Citas</h2>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="flex bg-gray-100 p-1 rounded-lg">
+                            <button id="btn-tab-future" onclick="setFilter('future')" class="px-4 py-1.5 text-sm font-semibold bg-white shadow-sm rounded-md text-gray-800 transition-all">Próximas</button>
+                            <button id="btn-tab-past" onclick="setFilter('past')" class="px-4 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-800 rounded-md transition-all">Pasadas</button>
+                        </div>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md hidden sm:inline-block"><i class="fas fa-sync-alt fa-spin mr-1"></i> 5s</span>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-600 text-sm border-y border-gray-100">
+                                <th class="p-3">Fecha / Hora</th>
+                                <th class="p-3">Cliente</th>
+                                <th class="p-3">Contacto</th>
+                                <th class="p-3">Servicio</th>
+                                <th class="p-3 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="citas-tbody" class="text-sm divide-y divide-gray-100">
+                            <!-- Inyección JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gestión de Servicios -->
+        <section class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-plus-circle text-pink-500 mr-2"></i>Nuevo Servicio</h2>
+                
+                <form id="form-servicio" class="space-y-4">
+                    <!-- ID Oculto para saber si editamos o creamos -->
+                    <input type="hidden" id="srv-id" value="">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Nombre del Servicio</label>
+                        <input type="text" id="srv-name" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:bg-white outline-none transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Duración (min)</label>
+                            <input type="number" id="srv-duration" required min="1" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:bg-white outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Precio ($)</label>
+                            <input type="number" id="srv-price" required min="0" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:bg-white outline-none transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Icono FontAwesome</label>
+                        <input type="text" id="srv-icon" placeholder="fa-magic" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:bg-white outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Descripción</label>
+                        <textarea id="srv-desc" rows="2" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:bg-white outline-none transition-all"></textarea>
+                    </div>
+                    
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" id="btn-submit-srv" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 rounded-xl transition-all shadow-md hover:shadow-lg">Guardar Servicio</button>
+                        <button type="button" id="btn-cancel-srv" onclick="cancelarEdicion()" class="hidden w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 rounded-xl transition-all shadow-md">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-md font-bold text-gray-800 mb-4">Catálogo Activo</h3>
+                <ul id="servicios-lista" class="space-y-3 text-sm">
+                    <!-- Inyección JS -->
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <script src="./admin.js"></script>
+</body>
+</html>

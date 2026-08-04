@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow Spa - Inicio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navegación -->
+    <nav class="glass-nav fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                <i class="fas fa-spa text-pink-500 text-3xl"></i>
+                <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Glow<span class="text-pink-500">Spa</span></h1>
+            </div>
+            
+            <!-- Menú Escritorio -->
+            <div class="hidden md:flex items-center gap-8 font-medium text-gray-600">
+                <a href="#nosotros" class="hover:text-pink-500 transition-colors">Nosotros</a>
+                <a href="#servicios" class="hover:text-pink-500 transition-colors">Servicios</a>
+                <a href="#galeria" class="hover:text-pink-500 transition-colors">Galería</a>
+                <a href="agenda.html" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded-full shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="far fa-calendar-alt"></i> Agendar Cita
+                </a>
+            </div>
+
+            <!-- Botón Menú Móvil -->
+            <button class="md:hidden text-gray-600 text-2xl focus:outline-none" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Menú Móvil (Oculto por defecto) -->
+        <div class="md:hidden hidden bg-white border-t" id="mobile-menu">
+            <div class="flex flex-col px-4 py-4 space-y-4 text-center">
+                <a href="#nosotros" class="text-gray-600 font-medium">Nosotros</a>
+                <a href="#servicios" class="text-gray-600 font-medium">Servicios</a>
+                <a href="#galeria" class="text-gray-600 font-medium">Galería</a>
+                <a href="agenda.html" class="bg-pink-600 text-white px-6 py-3 rounded-xl font-medium inline-block mx-auto">
+                    Agendar Cita
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative pt-24 pb-12 md:pt-32 md:pb-20 flex items-center overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center gap-10 relative z-10">
+            <div class="w-full md:w-1/2 text-center md:text-left fade-in-up">
+                <span class="text-pink-500 font-semibold tracking-wider uppercase text-sm mb-2 block">Tu momento de brillar</span>
+                <h2 class="text-4xl md:text-6xl font-bold text-gray-800 leading-tight mb-6">
+                    Arte y cuidado <br> para tus <span class="text-pink-500">manos</span>
+                </h2>
+                <p class="text-gray-600 text-lg mb-8 max-w-lg mx-auto md:mx-0">
+                    Descubre un espacio diseñado para tu relajación. Especialistas en acrílicas, esmaltado semipermanente y nail art de vanguardia.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <a href="agenda.html" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-pink-300/50 transition-all transform hover:-translate-y-1 text-center flex items-center justify-center gap-2">
+                        <span>Reserva tu turno</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <a href="#galeria" class="bg-white hover:bg-pink-50 text-pink-600 font-semibold py-3 px-8 rounded-xl border-2 border-pink-100 transition-all text-center">
+                        Ver trabajos
+                    </a>
+                </div>
+            </div>
+            
+            <div class="w-full md:w-1/2 fade-in-up" style="transition-delay: 200ms;">
+                <div class="relative rounded-t-full rounded-b-3xl overflow-hidden border-8 border-white shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Spa de Uñas" class="w-full h-[400px] md:h-[550px] object-cover hover:scale-105 transition-transform duration-700">
+                    <div class="absolute bottom-6 -left-6 md:left-6 bg-white/90 backdrop-blur p-4 rounded-2xl shadow-xl flex items-center gap-4 animate-bounce" style="animation-duration: 3s;">
+                        <div class="bg-green-100 text-green-500 w-10 h-10 rounded-full flex items-center justify-center">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">+1000 Clientes</p>
+                            <p class="text-xs text-gray-500">Satisfechas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sección de Información (Nosotros) -->
+    <section id="nosotros" class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 text-center fade-in-up">
+            <i class="fas fa-heart text-pink-400 text-4xl mb-4"></i>
+            <h3 class="text-3xl font-bold text-gray-800 mb-6">Por qué elegir Glow Spa</h3>
+            <p class="text-gray-600 text-lg leading-relaxed">
+                En Glow Spa no solo hacemos uñas, creamos pequeñas obras de arte que reflejan tu personalidad. 
+                Utilizamos productos de la más alta calidad y nos mantenemos a la vanguardia de las últimas tendencias 
+                y técnicas de cuidado. Nuestro objetivo es que te sientas cómoda, relajada y salgas sintiéndote fabulosa.
+            </p>
+        </div>
+    </section>
+
+    <!-- Sección Servicios -->
+    <section id="servicios" class="py-20">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12 fade-in-up">
+                <h3 class="text-3xl font-bold text-gray-800 mb-4">Nuestros Servicios</h3>
+                <p class="text-gray-500 max-w-2xl mx-auto">Conoce nuestras especialidades. En nuestro agendador podrás ver los precios detallados y tiempos de cada servicio.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Servicio 1 -->
+                <div class="bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow border-2 border-transparent hover:border-pink-200 fade-in-up" style="transition-delay: 100ms;">
+                    <div class="w-14 h-14 bg-pink-100 text-pink-500 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                        <i class="fas fa-hand-sparkles"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">Manicura Clásica</h4>
+                    <p class="text-gray-500 text-sm mb-4">Cuidado esencial para mantener tus manos limpias, hidratadas y perfectas.</p>
+                </div>
+                <!-- Servicio 2 -->
+                <div class="bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow border-2 border-transparent hover:border-pink-200 fade-in-up" style="transition-delay: 200ms;">
+                    <div class="w-14 h-14 bg-pink-100 text-pink-500 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">Semi-permanente</h4>
+                    <p class="text-gray-500 text-sm mb-4">Color vibrante y duradero hasta por 3 semanas sin perder el brillo inicial.</p>
+                </div>
+                <!-- Servicio 3 -->
+                <div class="bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow border-2 border-transparent hover:border-pink-200 fade-in-up" style="transition-delay: 300ms;">
+                    <div class="w-14 h-14 bg-pink-100 text-pink-500 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">Uñas Acrílicas</h4>
+                    <p class="text-gray-500 text-sm mb-4">Estructuras perfectas, alargamiento y diseños espectaculares personalizados.</p>
+                </div>
+                <!-- Servicio 4 -->
+                <div class="bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-shadow border-2 border-transparent hover:border-pink-200 fade-in-up" style="transition-delay: 400ms;">
+                    <div class="w-14 h-14 bg-pink-100 text-pink-500 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">Spa Completo</h4>
+                    <p class="text-gray-500 text-sm mb-4">Exfoliación profunda y masajes relajantes para consentir manos y pies.</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10 fade-in-up" style="transition-delay: 500ms;">
+                <a href="agenda.html" class="inline-flex items-center gap-2 text-pink-600 font-semibold hover:text-pink-800 transition-colors">
+                    Ver todos los servicios y precios <i class="fas fa-arrow-right text-sm"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galería -->
+    <section id="galeria" class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12 fade-in-up">
+                <h3 class="text-3xl font-bold text-gray-800 mb-4">Nuestro Trabajo</h3>
+                <p class="text-gray-500">Inspírate con algunos de nuestros diseños recientes.</p>
+            </div>
+            <!-- Grid de Galería -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="group relative aspect-square overflow-hidden rounded-2xl cursor-pointer fade-in-up" onclick="openLightbox(this)">
+                    <img src="https://images.unsplash.com/photo-1519014816548-bf5fe059e98b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Nail Art 1" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-pink-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <i class="fas fa-search-plus text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="group relative aspect-square overflow-hidden rounded-2xl cursor-pointer fade-in-up" style="transition-delay: 100ms;" onclick="openLightbox(this)">
+                    <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Nail Art 2" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-pink-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <i class="fas fa-search-plus text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="group relative aspect-square overflow-hidden rounded-2xl cursor-pointer fade-in-up" style="transition-delay: 200ms;" onclick="openLightbox(this)">
+                    <img src="https://images.unsplash.com/photo-1595868625907-7e6153094896?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Nail Art 3" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-pink-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <i class="fas fa-search-plus text-white text-3xl"></i>
+                    </div>
+                </div>
+                <div class="group relative aspect-square overflow-hidden rounded-2xl cursor-pointer fade-in-up" style="transition-delay: 300ms;" onclick="openLightbox(this)">
+                    <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Nail Art 4" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-pink-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <i class="fas fa-search-plus text-white text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fas fa-spa text-pink-500 text-2xl"></i>
+                    <h2 class="text-2xl font-bold tracking-tight">Glow<span class="text-pink-500">Spa</span></h2>
+                </div>
+                <p class="text-gray-400 text-sm">Tu espacio dedicado a la belleza y el cuidado personal. Ven y vive la experiencia.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Contacto</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><i class="fas fa-map-marker-alt text-pink-500 w-5"></i> Av. Principal 123, Ciudad</li>
+                    <li><i class="fab fa-whatsapp text-pink-500 w-5"></i> +57 300 123 4567</li>
+                    <li><i class="far fa-envelope text-pink-500 w-5"></i> hola@GlowSpa.com</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Síguenos</h4>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 transition-colors"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 transition-colors"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-600 transition-colors"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-6xl mx-auto px-4 border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
+            <p>&copy; 2026 Glow Spa. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col justify-center items-center opacity-0">
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 text-white text-4xl hover:text-pink-500 transition-colors focus:outline-none">
+            &times;
+        </button>
+        <img id="lightbox-img" src="" alt="Vista ampliada" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain p-4">
+    </div>
+
+    <!-- Script General Unificado -->
+    <script src="./serializacion.js"></script>
+    <script src="./app.js"></script>
+
+</body>
+</html>

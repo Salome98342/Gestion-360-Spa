@@ -1,0 +1,18 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { landingPublico, reservarCita } from '../services/api'
+
+const hours = Array.from({ length: 18 }, (_, index) => `${String(9 + Math.floor(index / 2)).padStart(2, '0')}:${index % 2 ? '30' : '00'}`)
+
+export default function AgendaEmpresa() {
+  const { slug } = useParams()
+  const [landing, setLanding] = useState(null); const [error, setError] = useState(''); const [sending, setSending] = useState(false); const [success, setSuccess] = useState(null)
+  const [form, setForm] = useState({ servicio_id: '', sucursal_id: '', fecha: '', hora: '', nombre: '', telefono: '', email: '', notas: '' })
+  useEffect(() => { landingPublico(slug).then((data) => { setLanding(data); if (data.sucursales.length === 1) setForm((current) => ({ ...current, sucursal_id: String(data.sucursales[0].id) })) }).catch((err) => setError(err.message)) }, [slug])
+  const services = useMemo(() => landing?.servicios.filter((item) => !item.sucursal_id || String(item.sucursal_id) === form.sucursal_id) || [], [landing, form.sucursal_id])
+  const update = (event) => setForm((current) => ({ ...current, [event.target.name]: event.target.value }))
+  async function submit(event) { event.preventDefault(); setError(''); setSending(true); try { const cita = await reservarCita(slug, { ...form, servicio_id: Number(form.servicio_id), sucursal_id: Number(form.sucursal_id) }); setSuccess(cita.cita) } catch (err) { setError(err.message) } finally { setSending(false) } }
+  if (!landing) return <main className="tenant-state">{error || 'Cargando agenda…'}</main>
+  if (success) return <main className="tenant-state"><h1>¡Tu cita fue reservada!</h1><p>{success.servicio} · {success.fecha} a las {success.hora}</p><Link className="tenant-button" to={`/${slug}`}>Volver al inicio</Link></main>
+  return <main className="booking"><Link to={`/${slug}`}>← Volver a {landing.empresa.nombre}</Link><div className="booking-card"><h1>Agenda tu cita</h1><p className="tenant-muted">Completa tus datos para reservar.</p>{error && <div className="notice error">{error}</div>}<form onSubmit={submit} className="booking-grid"><label>Sucursal<select name="sucursal_id" value={form.sucursal_id} onChange={(event) => { update(event); setForm((current) => ({ ...current, servicio_id: '' })) }} required><option value="">Selecciona</option>{landing.sucursales.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}</select></label><label>Servicio<select name="servicio_id" value={form.servicio_id} onChange={update} required disabled={!form.sucursal_id}><option value="">Selecciona</option>{services.map((item) => <option key={item.id} value={item.id}>{item.nombre} · {item.duracion_minutos} min</option>)}</select></label><label>Fecha<input name="fecha" type="date" min={new Date().toISOString().slice(0, 10)} value={form.fecha} onChange={update} required /></label><label>Hora<select name="hora" value={form.hora} onChange={update} required><option value="">Selecciona</option>{hours.map((time) => <option key={time}>{time}</option>)}</select></label><label>Nombre completo<input name="nombre" value={form.nombre} onChange={update} required /></label><label>Teléfono<input name="telefono" value={form.telefono} onChange={update} required /></label><label className="full">Correo electrónico (opcional)<input name="email" type="email" value={form.email} onChange={update} /></label><label className="full">Notas (opcional)<textarea name="notas" value={form.notas} onChange={update} /></label><div className="full"><button className="tenant-button" disabled={sending}>{sending ? 'Reservando…' : 'Confirmar reserva'}</button></div></form></div></main>
+}

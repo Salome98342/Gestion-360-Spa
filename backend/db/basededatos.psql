@@ -1,0 +1,249 @@
+-- ============================================================
+-- BASE DE DATOS: SaaS multiempresa de agendamiento de citas
+-- Motor: PostgreSQL 14+
+-- ============================================================
+-- Convenciones:
+--   - PK: id BIGSERIAL
+--   - Dinero: NUMERIC(12,2)
+--   - Flags booleanos: BOOLEAN (true/false)
+--   - Fechas/horas de auditoría: TIMESTAMPTZ
+--   - Textos libres: TEXT
+--   - auth_user: se asume creada por Django (auth_user.id integer)
+-- ============================================================
+
+BEGIN;
+
+-- ============================================================
+-- 1. EMPRESA (tenant raíz)
+-- ============================================================
+CREATE TABLE empresa (
+    id                   BIGSERIAL PRIMARY KEY,
+    nombre               TEXT NOT NULL,
+    slug                 VARCHAR(80) NOT NULL UNIQUE,
+    nit                  TEXT,
+    direccion            TEXT,
+    telefono             TEXT,
+    email_contacto       TEXT,
+    whatsapp             TEXT,
+    moneda               TEXT NOT NULL DEFAULT 'COP',
+    porcentaje_impuesto  NUMERIC(5,2) NOT NULL DEFAULT 0.00,
+    logo_url             TEXT,
+    color_primario       TEXT NOT NULL DEFAULT '#db2777',
+    color_secundario     TEXT NOT NULL DEFAULT '#fff0f5',
+    activa               BOOLEAN NOT NULL DEFAULT TRUE,
+    creada_en            TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ============================================================
+-- 2. PLAN_LICENCIA (catálogo de planes que ustedes venden)
+-- ============================================================
+CREATE TABLE plan_licencia (
+    id                   BIGSERIAL PRIMARY KEY,
+    nombre               TEXT NOT NULL,
+    descripcion          TEXT,
+    precio_mensual       NUMERIC(12,2) NOT NULL DEFAULT 0.00,
+    max_citas_mes        INTEGER,          -- NULL = ilimitado
+    max_servicios        INTEGER,          -- NULL = ilimitado
+    max_usuarios_admin   INTEGER,          -- NULL = ilimitado
+    max_sucursales       INTEGER NOT NULL DEFAULT 1,
+    activo               BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- ============================================================
+-- 3. LICENCIA_TOKEN (activación / vencimiento por empresa)
+-- ============================================================
+CREATE TABLE licencia_token (
+    id                   BIGSERIAL PRIMARY KEY,
+    empresa_id           BIGINT NOT NULL REFERENCES empresa(id) ON DELETE CASCADE,
+    plan_id              BIGINT REFERENCES plan_licencia(id) ON DELETE SET NULL,
+    token                TEXT NOT NULL UNIQUE,
+    fecha_generacion     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    fecha_activacion     TIMESTAMPTZ,
+    fecha_vencimiento    TIMESTAMPTZ NOT NULL,
+    estado               TEXT NOT NULL DEFAULT 'DISPONIBLE'
+                         CHECK (estado IN ('DISPONIBLE','ACTIVA','VENCIDA','SUSPENDIDA','CANCELADA')),
+    generada_por_id      INTEGER REFERENCES auth_user(id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_licencia_empresa_estado ON licencia_token(empresa_id, estado);
+CREATE INDEX idx_licencia_vencimiento    ON licencia_token(fecha_vencimiento);
+
+-- ============================================================
+-- 4. RENOVACION_LICENCIA (historial de pagos/renovaciones)
+-- ============================================================
+CREATE TABLE renovacion_licencia (
+    id                       BIGSERIAL PRIMARY KEY,
+    licencia_id              BIGINT NOT NULL REFERENCES licencia_token(id) ON DELETE CASCADE,
+    fecha_renovacion         TIMESTAMPTZ NOT NULL DEFAULT now(),
+    meses_agregados          INTEGER NOT NULL,
+    nueva_fecha_vencimiento  TIMESTAMPTZ NOT NULL,
+    monto_pagado             NUMERIC(12,2) NOT NULL DEFAULT 0.00,
+    observacion              TEXT
+);
+
+CREATE INDEX idx_renovacion_licencia ON renovacion_licencia(licencia_id);
+
+-- ============================================================
+-- 5. EVENTO_EMPRESA (bitácora administrativa: soporte, avisos)
+-- ============================================================
+CREATE TABLE evento_empresa (
+    id           BIGSERIAL PRIMARY KEY,
+    empresa_id   BIGINT NOT NULL REFERENCES empresa(id) ON DELETE CASCADE,
+    titulo       TEXT NOT NULL,
+    descripcion  TEXT,
+    fecha        TIMESTAMPTZ NOT NULL,
+    tipo         TEXT NOT NULL DEFAULT 'GENERAL'
+                CHECK (tipo IN ('GENERAL','LICENCIA','PAGO','SOPORTE')),
+    completado   BOOLEAN NOT NULL DEFAULT FALSE,
+    creado_en    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_evento_empresa ON evento_empresa(empresa_id);
+
+-- ============================================================
+-- 6. USUARIO_EMPRESA (usuarios de panel por empresa y rol)
+-- ============================================================
+CREATE TABLE usuario_empresa (
+    id           BIGSERIAL PRIMARY KEY,
+    usuario_id   INTEGER NOT NULL REFERENCES auth_user(id) ON DELETE CASCADE,
+    empresa_id   BIGINT NOT NULL REFERENCES empresa(id) ON DELETE CASCADE,
+    rol          TEXT NOT NULL DEFAULT 'EMPLEADO'
+                CHECK (rol IN ('DUENO','EMPLEADO','SOPORTE')),
+    activo       BOOLEAN NOT NULL DEFAULT TRUE,
+    creado_en    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (usuario_id, empresa_id)
+);
+
+-- ============================================================
+-- 7. SUCURSAL (una empresa puede tener 1 o varias)
+-- ============================================================
+CREATE TABLE sucursal (
+    id           BIGSERIAL PRIMARY KEY,
+    empresa_id   BIGINT NOT NULL REFERENCES empresa(id) ON DELETE CASCADE,
+    nombre       TEXT NOT NULL,
+    direccion    TEXT,
+    telefono     TEXT,
+    activa       BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE INDEX idx_sucursal_empresa ON sucursal(empresa_id);
+
+-- ============================================================
+-- 8. CONFIGURACION_LANDING (contenido editable de la landing)
+-- ============================================================
+CREATE TABLE configuracion_landing (
+    id                BIGSERIAL PRIMARY KEY,
+    empresa_id        BIGINT NOT NULL UNIQUE REFERENCES empresa(id) ON DELETE CASCADE,
+    titulo_hero       TEXT,
+    subtitulo_hero    TEXT,
+    imagen_hero_url   TEXT,
+    texto_footer      TEXT,
+    instagram_url     TEXT,
+    facebook_url      TEXT,
+    tiktok_url        TEXT,
+    mostrar_precios   BOOLEAN NOT NULL DEFAULT TRUE,
+    actualizado_en    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ============================================================
+-- 9. SERVICIO
+-- ============================================================
+CREATE TABLE servicio (
+    id                BIGSERIAL PRIMARY KEY,
+    empresa_id        BIGINT NOT NULL REFERENCES empresa(id) ON DELETE CASCADE,
+    sucursal_id       BIGINT REFERENCES sucursal(id) ON DELETE SET NULL,
+    nombre            TEXT NOT NULL,
+    duracion_minutos  INTEGER NOT NULL,
+    precio            NUMERIC(12,2) NOT NULL,
+    icono             TEXT NOT NULL DEFAULT 'fa-hand-sparkles',
+    descripcion       TEXT,
+    activo            BOOLEAN NOT NULL DEFAULT TRUE,
+    orden             INTEGER NOT NULL DEFAULT 0,
+    creado_en         TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_servicio_empresa_activo ON servicio(empresa_id, activo);
+
+-- ============================================================
+-- 10. HORARIO_ATENCION (horario recurrente semanal)
+-- ============================================================
+CREATE TABLE horario_atencion (
+    id           BIGSERIAL PRIMARY KEY,
+    empresa_id   BIGINT NOT NULL REFERENCES empresa(id) ON DELETE CASCADE,
+    sucursal_id  BIGINT REFERENCES sucursal(id) ON DELETE CASCADE,
+    dia_semana   SMALLINT NOT NULL CHECK (dia_semana BETWEEN 0 AND 6), -- 0=domingo ... 6=sábado
+    hora_inicio  TIME NOT NULL,
+    hora_fin     TIME NOT NULL,
+    activo       BOOLEAN NOT NULL DEFAULT TRUE,
+    UNIQUE (empresa_id, sucursal_id, dia_semana, hora_inicio),
+    CHECK (hora_fin > hora_inicio)
+);
+
+-- ============================================================
+-- 11. DIA_EXCEPCION (festivos / cierres puntuales)
+-- ============================================================
+CREATE TABLE dia_excepcion (
+    id                 BIGSERIAL PRIMARY KEY,
+    empresa_id         BIGINT NOT NULL REFERENCES empresa(id) ON DELETE CASCADE,
+    sucursal_id        BIGINT REFERENCES sucursal(id) ON DELETE CASCADE,
+    fecha              DATE NOT NULL,
+    cerrado_todo_dia   BOOLEAN NOT NULL DEFAULT TRUE,
+    hora_inicio        TIME,
+    hora_fin           TIME,
+    motivo             TEXT
+);
+
+CREATE INDEX idx_dia_excepcion_empresa_fecha ON dia_excepcion(empresa_id, fecha);
+
+-- ============================================================
+-- 12. CLIENTE
+-- ============================================================
+CREATE TABLE cliente (
+    id               BIGSERIAL PRIMARY KEY,
+    empresa_id       BIGINT NOT NULL REFERENCES empresa(id) ON DELETE CASCADE,
+    nombre           TEXT NOT NULL,
+    telefono         TEXT NOT NULL,
+    email            TEXT,
+    notas_internas   TEXT,
+    creado_en        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (empresa_id, telefono)
+);
+
+-- ============================================================
+-- 13. CITA
+-- ============================================================
+CREATE TABLE cita (
+    id                 BIGSERIAL PRIMARY KEY,
+    empresa_id         BIGINT NOT NULL REFERENCES empresa(id) ON DELETE CASCADE,
+    sucursal_id        BIGINT REFERENCES sucursal(id) ON DELETE SET NULL,
+    servicio_id        BIGINT NOT NULL REFERENCES servicio(id) ON DELETE RESTRICT,
+    cliente_id         BIGINT NOT NULL REFERENCES cliente(id) ON DELETE RESTRICT,
+    fecha              DATE NOT NULL,
+    hora               TIME NOT NULL,
+    precio_cobrado     NUMERIC(12,2) NOT NULL,   -- snapshot del precio al agendar
+    duracion_minutos   INTEGER NOT NULL,         -- snapshot de la duración al agendar
+    notas              TEXT,
+    estado             TEXT NOT NULL DEFAULT 'PENDIENTE'
+                       CHECK (estado IN ('PENDIENTE','CONFIRMADA','CANCELADA','COMPLETADA','NO_ASISTIO')),
+    creado_en          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    actualizado_en     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (empresa_id, sucursal_id, servicio_id, fecha, hora)
+);
+
+CREATE INDEX idx_cita_empresa_fecha  ON cita(empresa_id, fecha);
+CREATE INDEX idx_cita_empresa_estado ON cita(empresa_id, estado);
+
+-- Trigger para mantener actualizado_en al día en cada UPDATE
+CREATE OR REPLACE FUNCTION set_actualizado_en()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.actualizado_en = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_cita_actualizado_en
+BEFORE UPDATE ON cita
+FOR EACH ROW EXECUTE FUNCTION set_actualizado_en();
+
+COMMIT;
