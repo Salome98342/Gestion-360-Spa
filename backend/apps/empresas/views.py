@@ -1,7 +1,7 @@
 """API pública para el landing y el agendador de cada empresa."""
 
 import json
-from datetime import date, time
+from datetime import date, datetime, time
 from decimal import Decimal
 
 from django.db import IntegrityError, transaction
@@ -12,7 +12,7 @@ from django.views import View
 
 from apps.servicios.models import Servicio
 
-from .models import Cita, Cliente, ConfiguracionLanding, Empresa, Sucursal
+from .models import Cita, Cliente, ConfiguracionLanding, Empresa, PlanLicencia, LicenciaToken, Sucursal
 
 
 def _landing_a_dict(empresa, landing):
@@ -141,3 +141,95 @@ class ReservarCitaView(View):
             "id": cita.id, "fecha": cita.fecha.isoformat(), "hora": cita.hora.isoformat(),
             "estado": cita.estado, "servicio": servicio.nombre, "sucursal": sucursal.nombre,
         }}, status=201)
+
+
+def _empresa_superadmin_a_dict(empresa):
+    licencia = empresa.licencia_vigente
+    return {
+        "id": empresa.id,
+        "nombre": empresa.nombre,
+        "slug": empresa.slug,
+        "telefono": empresa.telefono,
+        "whatsapp": empresa.whatsapp,
+        "activo": empresa.activa,
+        "tiene_acceso": empresa.tiene_acceso,
+        "licencia": {
+            "estado": licencia.estado if licencia else None,
+            "plan": licencia.plan.nombre if licencia and licencia.plan else None,
+            "fecha_vencimiento": licencia.fecha_vencimiento.isoformat() if licencia else None,
+        },
+    }
+
+
+def _plan_a_dict(plan):
+    return {
+        "id": plan.id,
+        "nombre": plan.nombre,
+        "descripcion": plan.descripcion,
+        "precio_mensual": str(plan.precio_mensual),
+        "max_citas_mes": plan.max_citas_mes,
+        "max_servicios": plan.max_servicios,
+        "max_usuarios_admin": plan.max_usuarios_admin,
+        "max_sucursales": plan.max_sucursales,
+    }
+
+
+class SuperAdminEmpresaListCreateView(View):
+    def get(self, request):
+        empresas = Empresa.objects.all().order_by("nombre")
+        return JsonResponse({"empresas": [_empresa_superadmin_a_dict(e) for e in empresas]})
+
+    def post(self, request):
+        try:
+            data = json.loads(request.body or "{}")
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "JSON inválido"}, status=400)
+
+        nombre = (data.get("nombre") or "").strip()
+        slug = (data.get("slug") or "").strip()
+        if not nombre or not slug:
+            return JsonResponse({"error": "Nombre y slug son obligatorios."}, status=400)
+        if Empresa.objects.filter(slug=slug).exists():
+            return JsonResponse({"error": "Ya existe una empresa con ese slug."}, status=400)
+
+        fecha_vencimiento = data.get("fecha_vencimiento")
+        try:
+            fecha = date.fromisoformat(fecha_vencimiento)
+        except (TypeError, ValueError):
+            return JsonResponse({"error": "fecha_vencimiento debe tener formato YYYY-MM-DD."}, status=400)
+
+        plan_id = data.get("plan_id")
+        plan = None
+        if plan_id is not None and plan_id != "":
+            try:
+                plan = PlanLicencia.objects.get(id=int(plan_id), activo=True)
+            except (ValueError, PlanLicencia.DoesNotExist):
+                return JsonResponse({"error": "Plan de licencia inválido."}, status=400)
+
+        fecha_vencimiento_dt = timezone.make_aware(datetime.combine(fecha, time(23, 59, 59)))
+        if fecha_vencimiento_dt <= timezone.now():
+            return JsonResponse({"error": "La fecha de vencimiento debe ser futura."}, status=400)
+
+        with transaction.atomic():
+            empresa = Empresa.objects.create(
+                nombre=nombre,
+                slug=slug,
+                telefono=(data.get("telefono") or "").strip() or None,
+                whatsapp=(data.get("whatsapp") or "").strip() or None,
+                activa=True,
+            )
+            licencia = LicenciaToken.objects.create(
+                empresa=empresa,
+                plan=plan,
+                fecha_vencimiento=fecha_vencimiento_dt,
+                fecha_activacion=timezone.now(),
+                estado="ACTIVA",
+            )
+
+        return JsonResponse(_empresa_superadmin_a_dict(empresa), status=201)
+
+
+class PlanLicenciaListView(View):
+    def get(self, request):
+        planes = PlanLicencia.objects.filter(activo=True).order_by("precio_mensual", "nombre")
+        return JsonResponse({"planes": [_plan_a_dict(plan) for plan in planes]})

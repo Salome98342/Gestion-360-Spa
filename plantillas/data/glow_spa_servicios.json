@@ -1,0 +1,34 @@
+[
+  {
+    "id": "s1",
+    "name": "Manicura Tradicional",
+    "duration": 30,
+    "price": 25000,
+    "icon": "fa-hand-sparkles",
+    "desc": "Limpieza, limado y esmaltado tradicional."
+  },
+  {
+    "name": "Cualquier cosa",
+    "duration": 60,
+    "price": 300000,
+    "icon": "fa-lemon",
+    "desc": "Naksdmalksdnasdlasdalksdn",
+    "id": "s1784759574015"
+  },
+  {
+    "name": "Cualquier cosasadsd",
+    "duration": 100,
+    "price": 12000,
+    "icon": "fa-magic",
+    "desc": "asdasd",
+    "id": "s1784759597891"
+  },
+  {
+    "name": "sdf",
+    "duration": 1,
+    "price": 1,
+    "icon": "fa-hand-point-up",
+    "desc": "sfdsf",
+    "id": "s1784759818239"
+  }
+]

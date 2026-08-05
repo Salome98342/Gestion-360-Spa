@@ -1,0 +1,142 @@
+.dashboard-saas {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.dashboard-saas-title {
+  font-size: clamp(1.9rem, 2.4vw, 2.6rem);
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.dashboard-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 26px;
+  padding: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-card-icon {
+  min-width: 3rem;
+  min-height: 3rem;
+  border-radius: 1rem;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+}
+
+.dashboard-card-info p {
+  margin: 0;
+}
+
+.dashboard-card-summary {
+  font-size: 0.95rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.dashboard-card-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 0.35rem;
+}
+
+.dashboard-graph-placeholder {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 32px;
+  padding: 2rem;
+  display: grid;
+  place-items: center;
+  color: #64748b;
+  box-shadow: 0 24px 65px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-graph-placeholder i {
+  margin-right: 0.7rem;
+}
+
+.dashboard-saas-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.dashboard-saas-copy {
+  max-width: 680px;
+  color: #64748b;
+}
+
+.dashboard-card-icon.dashboard-card-icon-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.dashboard-card-icon.dashboard-card-icon-primary {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+.dashboard-card-icon.dashboard-card-icon-warning {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.dashboard-card-icon.dashboard-card-icon-info {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.dashboard-card-value-warning {
+  color: #ea580c;
+}
+
+.dashboard-overview-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+.dashboard-overview-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 26px;
+  padding: 1.6rem;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-overview-card h3 {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .dashboard-overview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .dashboard-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1160px) {
+  .dashboard-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

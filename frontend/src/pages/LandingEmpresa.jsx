@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { landingPublico } from '../services/api'
+import './LandingEmpresa.css'
 
 const HERO_DEFAULT = 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=1100&q=85'
 
@@ -21,25 +22,103 @@ export default function LandingEmpresa() {
 
   const { empresa, landing, servicios, sucursales } = data
   const gallery = (landing.galeria_urls || []).filter(Boolean)
-  const title = landing.titulo_hero || `Belleza hecha para ti en ${empresa.nombre}`
-  const subtitle = landing.subtitulo_hero || 'Agenda en pocos pasos y disfruta un espacio pensado para ti.'
+  const title = landing.titulo_hero || empresa.nombre || ''
+  const subtitle = landing.subtitulo_hero || ''
   const theme = { '--primary': empresa.color_primario || '#db2777', '--secondary': empresa.color_secundario || '#fff0f5' }
 
-  return <div className="tenant" style={theme}>
-    <nav className="tenant-nav">
-      <Link className="tenant-brand" to={`/${slug}`}>
-        {empresa.logo_url ? <img className="tenant-logo" src={empresa.logo_url} alt="Logo" /> : <span className="tenant-logo" />}
-        {empresa.nombre}
-      </Link>
-      <div className="tenant-nav-links"><a href="#servicios">Servicios</a><a href="#contacto">Contacto</a><Link className="tenant-button" to={`/${slug}/agenda`}>Agendar cita</Link></div>
-    </nav>
-    <div className="tenant-hero-wrap"><header className="tenant-hero">
-      <div><div className="tenant-eyebrow">Tu espacio de bienestar</div><h1>{title}</h1><p className="tenant-copy">{subtitle}</p><div className="tenant-actions"><Link className="tenant-button" to={`/${slug}/agenda`}>Reserva ahora</Link><a className="tenant-button secondary" href="#servicios">Ver servicios</a></div></div>
-      <img className="tenant-hero-image" src={landing.imagen_hero_url || HERO_DEFAULT} alt={empresa.nombre} />
-    </header></div>
-    <section id="servicios" className="tenant-section tenant-services"><h2>Servicios</h2><p className="tenant-muted">Elige el servicio ideal y reserva el horario que prefieras.</p><div className="tenant-grid">{servicios.map((service) => <article className="tenant-card" key={service.id}><h3>{service.nombre}</h3><p className="tenant-muted">{service.descripcion || 'Servicio profesional personalizado.'}</p><p className="tenant-muted">{service.duracion_minutos} minutos</p>{landing.mostrar_precios && <div className="tenant-price">${Number(service.precio).toLocaleString('es-CO')}</div>}</article>)}</div></section>
-    {gallery.length > 0 && <section className="tenant-section"><h2>Galería</h2><div className="tenant-gallery">{gallery.map((url, index) => <img key={url} src={url} alt={`Trabajo ${index + 1}`} onClick={() => setImage(url)} />)}</div></section>}
-    <footer id="contacto" className="tenant-footer"><div><strong>{empresa.nombre}</strong><p>{landing.texto_footer || 'Agenda tu cita y vive una experiencia única.'}</p></div><div>{empresa.telefono && <p>Teléfono: {empresa.telefono}</p>}{empresa.whatsapp && <p>WhatsApp: {empresa.whatsapp}</p>}{sucursales[0] && <p>{sucursales[0].direccion || sucursales[0].nombre}</p>}</div></footer>
-    {image && <button className="lightbox" onClick={() => setImage(null)}><img src={image} alt="Vista ampliada" /></button>}
-  </div>
+  return (
+    <div className="tenant tenant-landing" style={theme}>
+      <nav className="tenant-nav">
+        <Link className="tenant-brand" to={`/${slug}`}>
+          {empresa.logo_url ? <img className="tenant-logo" src={empresa.logo_url} alt="Logo" /> : <span className="tenant-logo" />}
+          <span>{empresa.nombre}</span>
+        </Link>
+
+        <div className="tenant-nav-links">
+          <a href="#servicios">Servicios</a>
+          <a href="#contacto">Contacto</a>
+          <Link className="tenant-button" to={`/${slug}/agenda`}>Agendar cita</Link>
+        </div>
+      </nav>
+
+      <div className="tenant-hero-wrap">
+        <header className="tenant-hero">
+          <div className="tenant-hero-copy">
+            {title && <div className="tenant-eyebrow">Bienvenido a</div>}
+            <h1>{title}</h1>
+            <p className="tenant-copy">{subtitle || 'Descubre un espacio creado para consentir tu belleza con servicios profesionales, ambiente exclusivo y una experiencia relajante.'}</p>
+            <div className="tenant-actions">
+              <Link className="tenant-button" to={`/${slug}/agenda`}>Reserva ahora</Link>
+              <a className="tenant-button secondary" href="#servicios">Ver servicios</a>
+            </div>
+          </div>
+
+          <div className="tenant-hero-media">
+            <img className="tenant-hero-image" src={landing.imagen_hero_url || HERO_DEFAULT} alt={landing.titulo_hero || empresa.nombre} />
+          </div>
+        </header>
+      </div>
+
+      <section id="servicios" className="tenant-section tenant-services">
+        <div className="tenant-section-header">
+          <div>
+            <span className="tenant-eyebrow">Servicios</span>
+            <h2>Elige tu tratamiento ideal</h2>
+          </div>
+          <p className="tenant-muted">Explora nuestro catálogo con tiempos reales y opciones diseñadas para tu comodidad.</p>
+        </div>
+
+        <div className="tenant-grid">
+          {servicios.map((service) => (
+            <article className="tenant-card" key={service.id}>
+              <div className="tenant-card-heading">
+                <h3>{service.nombre}</h3>
+                <span className="tenant-card-badge">{service.duracion_minutos} min</span>
+              </div>
+              <p className="tenant-card-copy">{service.descripcion || 'Servicio profesional personalizado.'}</p>
+              {landing.mostrar_precios && <div className="tenant-price">{Number(service.precio).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })}</div>}
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {gallery.length > 0 && (
+        <section className="tenant-section">
+          <div className="tenant-section-header">
+            <div>
+              <span className="tenant-eyebrow">Inspiración</span>
+              <h2>Galería de trabajo</h2>
+            </div>
+            <p className="tenant-muted">Mira algunos de nuestros resultados más cuidados.</p>
+          </div>
+          <div className="tenant-gallery">
+            {gallery.map((url, index) => (
+              <button key={url} type="button" className="tenant-gallery-item" onClick={() => setImage(url)}>
+                <img src={url} alt={`Trabajo ${index + 1}`} />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <footer id="contacto" className="tenant-footer">
+        <div>
+          <p className="tenant-footer-label">Contáctanos</p>
+          <strong>{empresa.nombre}</strong>
+          <p>{landing.texto_footer || 'Reserva tu espacio y vive una experiencia de belleza renovada.'}</p>
+        </div>
+        <div className="tenant-footer-info">
+          {empresa.telefono && <p><span>Teléfono:</span> {empresa.telefono}</p>}
+          {empresa.whatsapp && <p><span>WhatsApp:</span> {empresa.whatsapp}</p>}
+          {sucursales[0] && <p><span>Dirección:</span> {sucursales[0].direccion || sucursales[0].nombre}</p>}
+        </div>
+      </footer>
+
+      {image && (
+        <button className="lightbox" onClick={() => setImage(null)}>
+          <img src={image} alt="Vista ampliada" />
+        </button>
+      )}
+    </div>
+  )
 }

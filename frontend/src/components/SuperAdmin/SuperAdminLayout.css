@@ -1,0 +1,152 @@
+.superadmin-layout {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.superadmin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.superadmin-aside {
+  width: 280px;
+  background: #0f172a;
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+}
+
+.superadmin-brand {
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.superadmin-brand-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.superadmin-brand-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1.25rem;
+  background: #db2777;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+.superadmin-brand-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+
+.superadmin-brand-heading {
+  margin-top: 0.65rem;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.superadmin-nav {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  flex: 1;
+}
+
+.superadmin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1rem;
+  border-radius: 18px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.superadmin-link:hover {
+  background: rgba(219, 39, 119, 0.16);
+  color: #ffffff;
+}
+
+.superadmin-link.active {
+  background: #db2777;
+  color: #ffffff;
+}
+
+.superadmin-footer {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+  font-size: 0.95rem;
+  color: #cbd5e1;
+}
+
+.superadmin-main {
+  flex: 1;
+}
+
+.superadmin-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 1.5rem;
+}
+
+.superadmin-header-inner {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.superadmin-header-title {
+  margin: 0;
+  font-size: clamp(1.85rem, 2.2vw, 2.5rem);
+  color: var(--color-text);
+}
+
+.superadmin-header-copy {
+  margin-top: 0.5rem;
+  color: var(--color-muted);
+  max-width: 700px;
+}
+
+.superadmin-main-content {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 1.75rem;
+}
+
+.superadmin-link-icon {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 12px;
+  background: rgba(219, 39, 119, 0.12);
+  color: var(--color-primary);
+}
+
+.superadmin-footer-label {
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-bottom: 0.65rem;
+}
+
+.superadmin-footer-copy {
+  color: #cbd5e1;
+}
+
+@media (max-width: 900px) {
+  .superadmin-shell {
+    flex-direction: column;
+  }
+  .superadmin-aside {
+    width: 100%;
+  }
+}

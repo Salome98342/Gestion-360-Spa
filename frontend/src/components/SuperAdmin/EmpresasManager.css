@@ -1,0 +1,163 @@
+.empresas-manager {
+  background: #ffffff;
+  border: 1px solid #e6e8ef;
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: 0 24px 75px rgba(15, 23, 42, 0.08);
+}
+
+.empresas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.empresas-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #111827;
+}
+
+.empresas-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.empresas-table th,
+.empresas-table td {
+  padding: 1rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.empresas-title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #111827;
+}
+
+.empresas-header-icon {
+  margin-right: 0.65rem;
+  color: #db2777;
+}
+
+.empresas-icon {
+  margin-right: 0.5rem;
+}
+
+.empresa-slug {
+  color: #94a3b8;
+}
+
+.empresas-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.empresas-row-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.empresas-row-name strong {
+  color: #0f172a;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.status-pill.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-pill.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.action-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.action-button:hover {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.table-row-hover:hover {
+  background: #f8fafc;
+}
+
+.table-empty-row td {
+  padding: 1.5rem;
+}
+
+.table-empty-cell {
+  text-align: center;
+  color: #64748b;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #db2777;
+  color: #ffffff;
+  border: none;
+  border-radius: 16px;
+  padding: 0.95rem 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #be185d;
+  transform: translateY(-1px);
+}
+
+.modal-notice {
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 760px) {
+  .empresas-manager {
+    padding: 1.25rem;
+  }
+  .empresas-table th,
+  .empresas-table td {
+    padding: 0.85rem;
+  }
+}

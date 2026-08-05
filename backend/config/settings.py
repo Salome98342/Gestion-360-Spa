@@ -4,6 +4,7 @@ Django settings for config project.
 
 from pathlib import Path
 import os
+from django.core.exceptions import ImproperlyConfigured
 try:
     from dotenv import load_dotenv
 
@@ -24,6 +25,32 @@ if not SECRET_KEY:
 DEBUG = os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
+if not SECRET_KEY and not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes'):
+    raise ImproperlyConfigured('DJANGO_SECRET_KEY must be set in production')
+
+# Orígenes de confianza para CSRF.
+# El frontend (Vite en desarrollo) corre en localhost:5173 y, al pasar por el
+# proxy con changeOrigin=true, el Origin que llega al backend puede ser
+# http://127.0.0.1:8000. Se configuran ambos para cubrir los dos escenarios.
+# En producción se define vía variable de entorno DJANGO_CSRF_TRUSTED_ORIGINS.
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        'DJANGO_CSRF_TRUSTED_ORIGINS',
+        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,http://127.0.0.1:8000',
+    ).split(',')
+    if origin.strip()
+]
+
+CSRF_COOKIE_SECURE = not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
+SESSION_COOKIE_SECURE = not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_REFERRER_POLICY = 'same-origin'
+SECURE_HSTS_SECONDS = 31536000 if not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes') else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
+SECURE_HSTS_PRELOAD = not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
 
 
 # Application definition

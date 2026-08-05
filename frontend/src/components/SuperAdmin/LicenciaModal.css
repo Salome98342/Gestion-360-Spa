@@ -1,0 +1,205 @@
+.licencia-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.licencia-modal-dialog {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 36px 80px rgba(15, 23, 42, 0.18);
+  animation: modalFadeIn 0.28s ease-out;
+}
+
+.licencia-modal-header {
+  padding: 1.5rem 1.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+}
+
+.licencia-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.licencia-icon {
+  color: #db2777;
+}
+
+.licencia-modal-close {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.licencia-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.licencia-modal-prefix {
+  display: inline-flex;
+  align-items: center;
+  padding: 1rem 1rem;
+  border-radius: 18px 0 0 18px;
+  border: 1px solid #d1d5db;
+  border-right: none;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.licencia-modal-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.licencia-modal-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.licencia-modal-button {
+  flex: 1 1 0;
+  padding: 1rem 1.2rem;
+  border-radius: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.licencia-modal-button.cancel {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.licencia-modal-button.submit {
+  background: #db2777;
+  color: white;
+}
+
+.licencia-modal-button.submit:hover {
+  background: #be185d;
+}
+
+.licencia-modal-button.cancel:hover {
+  background: #e2e8f0;
+}
+
+.licencia-modal-close:hover {
+  color: #dc2626;
+}
+
+.licencia-modal-body {
+  padding: 1.6rem 1.75rem 2rem;
+}
+
+.licencia-modal-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.licencia-modal-group label {
+  display: grid;
+  gap: 0.55rem;
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.licencia-modal-field,
+.licencia-modal-select {
+  width: 100%;
+  padding: 1rem 1rem;
+  border-radius: 18px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.licencia-modal-field:focus,
+.licencia-modal-select:focus {
+  outline: none;
+  border-color: #db2777;
+  box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.12);
+}
+
+.licencia-modal-info {
+  font-size: 0.86rem;
+  color: #64748b;
+  margin-top: 0.35rem;
+}
+
+.licencia-modal-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.licencia-modal-button {
+  flex: 1 1 0;
+  padding: 1rem 1.2rem;
+  border-radius: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.licencia-modal-button.cancel {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.licencia-modal-button.submit {
+  background: #db2777;
+  color: white;
+}
+
+.licencia-modal-button.submit:hover {
+  background: #be185d;
+}
+
+.licencia-modal-button.cancel:hover {
+  background: #e2e8f0;
+}
+
+.notice.error {
+  margin-bottom: 1rem;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,272 @@
+.tenant-landing {
+  --primary: #db2777;
+  --secondary: #fff0f5;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fff0f5 0%, #ffffff 100%);
+}
+
+.tenant-landing .tenant-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.tenant-landing .tenant-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-decoration: none;
+  color: #111827;
+}
+
+.tenant-landing .tenant-logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 18px;
+  background: var(--secondary);
+  box-shadow: 0 16px 48px rgba(219, 39, 119, 0.12);
+  object-fit: cover;
+}
+
+.tenant-landing .tenant-nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.tenant-landing .tenant-nav-links a,
+.tenant-landing .tenant-nav-links .tenant-button {
+  text-decoration: none;
+}
+
+.tenant-landing .tenant-nav-links a {
+  color: #475569;
+  transition: color 0.25s ease;
+}
+
+.tenant-landing .tenant-nav-links a:hover {
+  color: var(--primary);
+}
+
+.tenant-landing .tenant-hero-wrap {
+  background: linear-gradient(115deg, var(--secondary), #ffffff 62%);
+}
+
+.tenant-landing .tenant-hero {
+  min-height: 560px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3rem;
+  align-items: center;
+  padding: 3.5rem 0;
+}
+
+.tenant-landing .tenant-hero-copy {
+  max-width: 620px;
+}
+
+.tenant-landing h1 {
+  margin: 0;
+  font-size: clamp(2.8rem, 4vw, 4.5rem);
+  line-height: 0.98;
+  color: #111827;
+}
+
+.tenant-landing .tenant-copy {
+  margin-top: 1.4rem;
+  color: #4d5765;
+  line-height: 1.8;
+  max-width: 610px;
+}
+
+.tenant-landing .tenant-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.tenant-landing .tenant-hero-media {
+  display: flex;
+  justify-content: center;
+}
+
+.tenant-landing .tenant-hero-image {
+  width: 100%;
+  height: 470px;
+  border-radius: 32px;
+  object-fit: cover;
+  box-shadow: 0 32px 90px rgba(23, 32, 51, 0.16);
+}
+
+.tenant-landing .tenant-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.tenant-landing .tenant-section-header h2 {
+  margin: 0;
+  font-size: clamp(2rem, 2.5vw, 2.5rem);
+  color: #111827;
+}
+
+.tenant-landing .tenant-services {
+  background: #f9fafb;
+  padding: 3rem 0;
+}
+
+.tenant-landing .tenant-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.tenant-landing .tenant-card {
+  background: #ffffff;
+  border: 1px solid #e8edf4;
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: 0 24px 60px rgba(23, 32, 51, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tenant-landing .tenant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 34px 96px rgba(23, 32, 51, 0.12);
+}
+
+.tenant-card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.tenant-card-heading h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #111827;
+}
+
+.tenant-card-badge {
+  background: rgba(219, 39, 119, 0.1);
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+}
+
+.tenant-card-copy {
+  color: #64748b;
+  flex: 1;
+  line-height: 1.7;
+}
+
+.tenant-price {
+  margin-top: auto;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.tenant-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.tenant-gallery-item {
+  border: none;
+  padding: 0;
+  background: none;
+  border-radius: 24px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.tenant-gallery-item img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.tenant-gallery-item:hover img {
+  transform: scale(1.04);
+}
+
+.tenant-footer {
+  background: #0f172a;
+  color: #dbeafe;
+  padding: 3rem 2rem;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  border-radius: 32px;
+}
+
+.tenant-footer-label {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.7rem;
+  color: #f8fafc;
+  margin-bottom: 0.75rem;
+}
+
+.tenant-footer-info p,
+.tenant-footer p {
+  margin: 0.65rem 0 0;
+  color: #cbd5e1;
+  line-height: 1.8;
+}
+
+@media (max-width: 960px) {
+  .tenant-landing .tenant-hero {
+    grid-template-columns: 1fr;
+    padding: 2rem 0;
+  }
+  .tenant-landing .tenant-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .tenant-landing .tenant-nav {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tenant-landing .tenant-nav-links {
+    justify-content: center;
+  }
+  .tenant-landing .tenant-hero-image {
+    height: 320px;
+  }
+  .tenant-landing .tenant-card {
+    padding: 1.5rem;
+  }
+  .tenant-landing .tenant-footer {
+    padding: 2rem 1.25rem;
+  }
+}
