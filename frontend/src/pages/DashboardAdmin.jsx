@@ -14,6 +14,7 @@ import {
   actualizarServicio,
   eliminarServicio,
   listarVentas,
+  listarCitasEmpresa,
   listarProductos,
   crearProducto,
 } from '../services/api'
@@ -70,6 +71,10 @@ export default function DashboardAdmin() {
   // ── Ventas ─────────────────────────────────────────────────
   const [ventas, setVentas] = useState([])
   const [ventasError, setVentasError] = useState('')
+
+  // ── Citas recibidas desde la landing ───────────────────────
+  const [citas, setCitas] = useState([])
+  const [citasError, setCitasError] = useState('')
 
   async function loadConfig() {
     setLoading(true)
@@ -130,6 +135,16 @@ export default function DashboardAdmin() {
     }
   }
 
+  async function loadCitas() {
+    setCitasError('')
+    try {
+      const data = await listarCitasEmpresa()
+      setCitas(data.citas || [])
+    } catch (err) {
+      setCitasError(err.message)
+    }
+  }
+
   useEffect(() => {
     async function init() {
       await loadConfig()
@@ -142,7 +157,7 @@ export default function DashboardAdmin() {
   useEffect(() => {
     async function refreshData() {
       if (!user) return
-      await Promise.all([loadServicios(), loadProductos(), loadVentas()])
+      await Promise.all([loadServicios(), loadVentas(), loadCitas()])
     }
     refreshData()
   }, [user])
@@ -152,8 +167,8 @@ export default function DashboardAdmin() {
     async function refreshOnTab() {
       if (!user) return
       if (tab === 'servicios') await loadServicios()
-      if (tab === 'productos') await loadProductos()
       if (tab === 'ventas') await loadVentas()
+      if (tab === 'citas') await loadCitas()
     }
     refreshOnTab()
   }, [tab])
@@ -418,8 +433,8 @@ export default function DashboardAdmin() {
   const tabs = [
     { key: 'resumen', label: 'Resumen', icon: 'fa-chart-pie' },
     { key: 'landing', label: 'Mi landing', icon: 'fa-wand-magic-sparkles' },
+    { key: 'citas', label: 'Reservas', icon: 'fa-calendar-check' },
     { key: 'servicios', label: 'Servicios', icon: 'fa-hand-sparkles' },
-    { key: 'productos', label: 'Inventario', icon: 'fa-boxes-stacked' },
     { key: 'ventas', label: 'Ventas', icon: 'fa-receipt' },
   ]
 
@@ -792,6 +807,19 @@ export default function DashboardAdmin() {
               )}
             </div>
           </div>
+        )}
+
+        {tab === 'citas' && (
+          <section className="admin-card">
+            <div className="admin-section-header">
+              <div><h2 className="section-title">Reservas recibidas</h2><p className="tenant-muted">Solicitudes realizadas desde tu landing.</p></div>
+              <button type="button" className="tenant-button secondary" onClick={loadCitas}>Actualizar</button>
+            </div>
+            {citasError && <div className="notice error">{citasError}</div>}
+            {citas.length === 0 ? <p className="tenant-muted">Aún no hay reservas registradas.</p> : <div className="table-wrapper"><table className="admin-table"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Contacto</th><th>Estado</th></tr></thead><tbody>
+              {citas.map((cita) => <tr key={cita.id}><td><div className="table-cell-title">{cita.cliente}</div>{cita.notas && <div className="table-note">{cita.notas}</div>}</td><td>{cita.servicio}<div className="table-note">{cita.duracion_minutos} min · {formatMoney(cita.precio)}</div></td><td>{new Date(`${cita.fecha}T00:00:00`).toLocaleDateString('es-CO')}<div className="table-note">{cita.hora}</div></td><td>{cita.telefono}{cita.email && <div className="table-note">{cita.email}</div>}</td><td><span className={`status-pill ${cita.estado === 'CANCELADA' ? 'inactive' : 'active'}`}>{cita.estado}</span></td></tr>)}
+            </tbody></table></div>}
+          </section>
         )}
 
         {tab === 'ventas' && (

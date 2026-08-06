@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { landingPublico, reservarCita } from '../services/api'
+import { disponibilidadCitas, landingPublico, reservarCita } from '../services/api'
 import './AgendaEmpresa.css'
-
-const hours = Array.from(
-  { length: 18 },
-  (_, index) => `${String(9 + Math.floor(index / 2)).padStart(2, '0')}:${index % 2 ? '30' : '00'}`
-)
 
 const formatCurrency = (value) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(value || 0))
@@ -26,12 +21,13 @@ export default function AgendaEmpresa() {
   const [landing, setLanding] = useState(null)
   const [error, setError] = useState('')
   const [sending, setSending] = useState(false)
+  const [availableTimes, setAvailableTimes] = useState([])
+  const [loadingTimes, setLoadingTimes] = useState(false)
   const [success, setSuccess] = useState(null)
   const [fieldErrors, setFieldErrors] = useState({})
 
   const [form, setForm] = useState({
     servicio_id: '',
-    sucursal_id: '',
     fecha: '',
     hora: '',
     nombre: '',
@@ -44,31 +40,18 @@ export default function AgendaEmpresa() {
     landingPublico(slug)
       .then((data) => {
         setLanding(data)
-        if (data.sucursales.length === 1) {
-          setForm((current) => ({
-            ...current,
-            sucursal_id: String(data.sucursales[0].id),
-          }))
-        }
       })
       .catch((err) => setError(err.message))
   }, [slug])
 
   const services = useMemo(() => {
     if (!landing) return []
-    return landing.servicios.filter(
-      (item) => !item.sucursal_id || String(item.sucursal_id) === form.sucursal_id
-    )
-  }, [landing, form.sucursal_id])
+    return landing.servicios
+  }, [landing])
 
   const selectedService = useMemo(
     () => services.find((item) => String(item.id) === String(form.servicio_id)) || null,
     [services, form.servicio_id]
-  )
-
-  const selectedSucursal = useMemo(
-    () => landing?.sucursales.find((item) => String(item.id) === String(form.sucursal_id)) || null,
-    [landing, form.sucursal_id]
   )
 
   const step = useMemo(() => {
@@ -78,8 +61,7 @@ export default function AgendaEmpresa() {
   }, [form.fecha, form.hora, form.servicio_id])
 
   const isFormValid = Boolean(
-    form.sucursal_id &&
-      form.servicio_id &&
+    form.servicio_id &&
       form.fecha &&
       form.hora &&
       form.nombre.trim() &&
@@ -91,21 +73,20 @@ export default function AgendaEmpresa() {
     setForm((current) => ({
       ...current,
       [name]: value,
-      ...(name === 'sucursal_id' ? { servicio_id: '' } : {}),
+      ...(name === 'fecha' ? { hora: '' } : {}),
     }))
     setFieldErrors((current) => ({ ...current, [name]: '' }))
     setError('')
   }
 
   const setFieldValue = (name, value) => {
-    setForm((current) => ({ ...current, [name]: value }))
+    setForm((current) => ({ ...current, [name]: value, ...(name === 'servicio_id' ? { hora: '' } : {}) }))
     setFieldErrors((current) => ({ ...current, [name]: '' }))
     setError('')
   }
 
   function validateForm() {
     const nextErrors = {}
-    if (!form.sucursal_id) nextErrors.sucursal_id = 'Selecciona una sucursal'
     if (!form.servicio_id) nextErrors.servicio_id = 'Elige un servicio'
     if (!form.fecha) nextErrors.fecha = 'Selecciona una fecha'
     if (!form.hora) nextErrors.hora = 'Elige una hora'
@@ -131,7 +112,6 @@ export default function AgendaEmpresa() {
       const cita = await reservarCita(slug, {
         ...form,
         servicio_id: Number(form.servicio_id),
-        sucursal_id: Number(form.sucursal_id),
       })
       setSuccess(cita.cita)
     } catch (err) {
@@ -140,6 +120,22 @@ export default function AgendaEmpresa() {
       setSending(false)
     }
   }
+
+  useEffect(() => {
+    if (!form.fecha || !form.servicio_id) {
+      setAvailableTimes([])
+      return
+    }
+    setLoadingTimes(true)
+    disponibilidadCitas(slug, form.fecha, form.servicio_id)
+      .then((data) => {
+        const horas = data.horas || []
+        setAvailableTimes(horas)
+        setForm((current) => horas.includes(current.hora) ? current : { ...current, hora: '' })
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoadingTimes(false))
+  }, [slug, form.fecha, form.servicio_id])
 
   if (!landing) {
     return (
@@ -161,7 +157,7 @@ export default function AgendaEmpresa() {
         <h1>¡Tu cita fue reservada!</h1>
         <div className="success-details">
           <p><strong>Servicio:</strong> {success.servicio}</p>
-          <p><strong>Sucursal:</strong> {success.sucursal}</p>
+          {success.direccion && <p><strong>Dirección:</strong> {success.direccion}</p>}
           <p><strong>Fecha y hora:</strong> {success.fecha} a las {success.hora}</p>
         </div>
         <Link className="tenant-button" to={`/${slug}`}>Volver al inicio</Link>
@@ -240,22 +236,6 @@ export default function AgendaEmpresa() {
 
               <div className="booking-grid compact">
                 <label>
-                  <span>Sucursal</span>
-                  <select
-                    name="sucursal_id"
-                    value={form.sucursal_id}
-                    onChange={update}
-                    required
-                  >
-                    <option value="">Selecciona</option>
-                    {landing.sucursales.map((item) => (
-                      <option key={item.id} value={item.id}>{item.nombre}</option>
-                    ))}
-                  </select>
-                  {fieldErrors.sucursal_id && <p className="field-error">{fieldErrors.sucursal_id}</p>}
-                </label>
-
-                <label>
                   <span>Fecha</span>
                   <input
                     name="fecha"
@@ -272,7 +252,7 @@ export default function AgendaEmpresa() {
               <div className="time-section">
                 <p className="time-section-title">Horario disponible</p>
                 <div className="time-options">
-                  {hours.map((time) => (
+                  {availableTimes.map((time) => (
                     <button
                       key={time}
                       type="button"
@@ -283,6 +263,8 @@ export default function AgendaEmpresa() {
                     </button>
                   ))}
                 </div>
+                {loadingTimes && <p className="tenant-muted">Consultando horarios disponibles...</p>}
+                {!loadingTimes && form.fecha && form.servicio_id && availableTimes.length === 0 && <p className="tenant-muted">No quedan horarios disponibles para esta fecha.</p>}
                 {fieldErrors.hora && <p className="field-error">{fieldErrors.hora}</p>}
               </div>
             </section>
@@ -358,10 +340,10 @@ export default function AgendaEmpresa() {
             <p>{selectedService ? selectedService.descripcion || 'Servicio seleccionado para tu bienestar.' : 'Elige un servicio para ver el detalle aquí.'}</p>
 
             <div className="summary-list">
-              <div className="summary-item">
-                <span>Sucursal</span>
-                <strong>{selectedSucursal ? selectedSucursal.nombre : 'Por escoger'}</strong>
-              </div>
+              {landing.empresa.direccion && <div className="summary-item">
+                <span>Dirección</span>
+                <strong>{landing.empresa.direccion}</strong>
+              </div>}
               <div className="summary-item">
                 <span>Fecha</span>
                 <strong>{formatDateLabel(form.fecha)}</strong>

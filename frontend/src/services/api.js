@@ -31,11 +31,13 @@ export async function api(path, options = {}) {
 }
 
 export const landingPublico = (slug) => api(`${COMPANIES_ROUTE}/${encodeURIComponent(slug)}/landing/`)
+export const disponibilidadCitas = (slug, fecha, servicioId) => api(`${COMPANIES_ROUTE}/${encodeURIComponent(slug)}/disponibilidad/?fecha=${encodeURIComponent(fecha)}&servicio_id=${encodeURIComponent(servicioId)}`)
 export const reservarCita = (slug, cita) => api(`${COMPANIES_ROUTE}/${encodeURIComponent(slug)}/citas/`, { method: 'POST', body: cita })
 export const iniciarSesion = (credenciales) => api(`${USERS_ROUTE}/login/`, { method: 'POST', body: credenciales, csrf: true })
 export const cerrarSesion = () => api(`${USERS_ROUTE}/logout/`, { method: 'POST', csrf: true })
 export const sesionActual = () => api(`${USERS_ROUTE}/me/`)
 export const configuracionLanding = () => api(`${COMPANIES_ROUTE}/configuracion/landing/`)
+export const listarCitasEmpresa = () => api(`${COMPANIES_ROUTE}/configuracion/citas/`)
 export const guardarConfiguracionLanding = (configuracion) => api(`${COMPANIES_ROUTE}/configuracion/landing/`, { method: 'PATCH', body: configuracion, csrf: true })
 export async function subirImagen(imagen) {
   if (!csrfToken()) await fetch(`${API_BASE_URL}${USERS_ROUTE}/csrf/`, { credentials: 'include' })

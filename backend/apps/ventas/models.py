@@ -67,7 +67,9 @@ class Venta(models.Model):
         ('ANULADA', 'Anulada'),
     ]
     empresa = models.ForeignKey('empresas.Empresa', on_delete=models.CASCADE, related_name='ventas')
-    sucursal = models.ForeignKey('empresas.Sucursal', on_delete=models.CASCADE, related_name='ventas')
+    # Cada empresa opera en una única dirección; la sucursal se conserva sólo
+    # para compatibilidad con ventas históricas de instalaciones antiguas.
+    sucursal = models.ForeignKey('empresas.Sucursal', on_delete=models.SET_NULL, null=True, blank=True, related_name='ventas')
     caja_diaria = models.ForeignKey(CajaDiaria, on_delete=models.RESTRICT, null=True, blank=True, related_name='ventas')
     cliente = models.ForeignKey('empresas.Cliente', on_delete=models.SET_NULL, null=True, blank=True)
     cita = models.ForeignKey('empresas.Cita', on_delete=models.SET_NULL, null=True, blank=True, related_name='ventas')

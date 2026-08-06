@@ -2,7 +2,7 @@
 
 import json
 import uuid
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from pathlib import Path
 
@@ -18,6 +18,7 @@ from django.utils import timezone
 from django.views import View
 
 from apps.servicios.models import DiaExcepcion, HorarioAtencion, Servicio
+from apps.ventas.models import DetalleVenta, Venta
 
 from .models import (
     Cita,
@@ -26,14 +27,43 @@ from .models import (
     Empresa,
     LicenciaToken,
     PlanLicencia,
-    Sucursal,
 )
+
+
+def _horas_disponibles(empresa, fecha, servicio):
+    """Intervalos libres de la única ubicación de la empresa."""
+    horarios = HorarioAtencion.objects.filter(empresa=empresa, dia_semana=fecha.weekday(), activo=True).order_by("hora_inicio")
+    horario = horarios.filter(sucursal__isnull=True).first() or horarios.first()
+    inicio, fin = (horario.hora_inicio, horario.hora_fin) if horario else (time(9), time(18))
+    excepcion = DiaExcepcion.objects.filter(empresa=empresa, fecha=fecha, sucursal__isnull=True).first()
+    if excepcion and excepcion.cerrado_todo_dia:
+        return []
+    if excepcion and excepcion.hora_inicio and excepcion.hora_fin:
+        inicio, fin = excepcion.hora_inicio, excepcion.hora_fin
+
+    citas = Cita.objects.filter(empresa=empresa, fecha=fecha).exclude(
+        estado__in=["CANCELADA", "NO_ASISTIO"]
+    ).select_related("servicio")
+    actual, cierre = datetime.combine(fecha, inicio), datetime.combine(fecha, fin)
+    paso, duracion = timedelta(minutes=30), timedelta(minutes=servicio.duracion_minutos)
+    disponibles = []
+    while actual + duracion <= cierre:
+        termina = actual + duracion
+        ocupado = any(
+            actual < datetime.combine(fecha, cita.hora) + timedelta(minutes=cita.duracion_minutos)
+            and datetime.combine(fecha, cita.hora) < termina
+            for cita in citas
+        )
+        if not ocupado:
+            disponibles.append(actual.time().strftime("%H:%M"))
+        actual += paso
+    return disponibles
 
 
 def _landing_a_dict(empresa, landing):
     return {
         "empresa": {
-            "nombre": empresa.nombre, "slug": empresa.slug, "telefono": empresa.telefono,
+            "nombre": empresa.nombre, "slug": empresa.slug, "telefono": empresa.telefono, "direccion": empresa.direccion,
             "whatsapp": empresa.whatsapp, "logo_url": empresa.logo_url,
             "color_primario": empresa.color_primario, "color_secundario": empresa.color_secundario,
         },
@@ -59,10 +89,8 @@ class LandingPublicaView(View):
         servicios = Servicio.objects.filter(empresa=empresa, activo=True).order_by("orden", "nombre")
         return JsonResponse({
             **_landing_a_dict(empresa, landing),
-            "sucursales": [{"id": s.id, "nombre": s.nombre, "direccion": s.direccion, "telefono": s.telefono}
-                           for s in empresa.sucursales.filter(activa=True).order_by("nombre")],
             "servicios": [{
-                "id": s.id, "sucursal_id": s.sucursal_id, "nombre": s.nombre,
+                "id": s.id, "nombre": s.nombre,
                 "duracion_minutos": s.duracion_minutos, "precio": str(s.precio),
                 "descripcion": s.descripcion, "icono": s.icono,
             } for s in servicios],
@@ -113,6 +141,38 @@ class ConfiguracionLandingView(View):
         empresa.save()
         landing.save()
         return JsonResponse(_landing_a_dict(empresa, landing))
+
+
+class CitasEmpresaView(View):
+    """Listado de reservas recibidas desde la landing para la propietaria."""
+
+    def dispatch(self, request, *args, **kwargs):
+        usuario = request.user
+        if not usuario.is_authenticated:
+            return JsonResponse({"error": "No autenticado"}, status=401)
+        if not usuario.empresa_id or usuario.rol != "DUENO":
+            return JsonResponse({"error": "Sólo el dueño de la empresa puede ver las citas"}, status=403)
+        if not usuario.puede_administrar_empresa:
+            return JsonResponse({"error": "La licencia de la empresa no está activa"}, status=403)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        citas = Cita.objects.filter(empresa=request.user.empresa).select_related(
+            "cliente", "servicio"
+        ).order_by("fecha", "hora")
+        return JsonResponse({"citas": [{
+            "id": cita.id,
+            "cliente": cita.cliente.nombre,
+            "telefono": cita.cliente.telefono,
+            "email": cita.cliente.email,
+            "servicio": cita.servicio.nombre,
+            "fecha": cita.fecha.isoformat(),
+            "hora": cita.hora.strftime("%H:%M"),
+            "duracion_minutos": cita.duracion_minutos,
+            "precio": str(cita.precio_cobrado),
+            "estado": cita.estado,
+            "notas": cita.notas,
+        } for cita in citas]})
 
 
 class ImagenEmpresaUploadView(View):
@@ -185,52 +245,18 @@ class ReservarCitaView(View):
             return JsonResponse({"error": "No puede reservar una fecha pasada"}, status=400)
 
         servicio_id = data.get("servicio_id")
-        sucursal_id = data.get("sucursal_id")
-        if not servicio_id or not sucursal_id:
-            return JsonResponse({"error": "servicio_id y sucursal_id son obligatorios"}, status=400)
+        if not servicio_id:
+            return JsonResponse({"error": "servicio_id es obligatorio"}, status=400)
 
         try:
             servicio = Servicio.objects.get(id=servicio_id, empresa=empresa, activo=True)
         except Servicio.DoesNotExist:
             return JsonResponse({"error": "Servicio no encontrado"}, status=404)
-        try:
-            sucursal = Sucursal.objects.get(id=sucursal_id, empresa=empresa, activa=True)
-        except Sucursal.DoesNotExist:
-            return JsonResponse({"error": "Sucursal no encontrada"}, status=404)
-
-        if servicio.sucursal_id and servicio.sucursal_id != sucursal.id:
-            return JsonResponse({"error": "El servicio no está disponible en esa sucursal"}, status=400)
-
-        # Validar horario de atención y días de excepción.
-        dia_semana = fecha.weekday()  # 0=lunes ... 6=domingo
-        horario = HorarioAtencion.objects.filter(
-            empresa=empresa,
-            sucursal=sucursal,
-            dia_semana=dia_semana,
-            activo=True,
-        ).first()
-        if not horario:
-            return JsonResponse({"error": "La sucursal no atiende ese día de la semana"}, status=400)
-
-        excepcion = DiaExcepcion.objects.filter(
-            empresa=empresa,
-            fecha=fecha,
-        ).filter(sucursal=sucursal).first()
-        if not excepcion:
-            excepcion = DiaExcepcion.objects.filter(
-                empresa=empresa,
-                fecha=fecha,
-                sucursal__isnull=True,
-            ).first()
-        if excepcion:
-            if excepcion.cerrado_todo_dia:
-                return JsonResponse({"error": "La sucursal está cerrada ese día"}, status=400)
-            if excepcion.hora_inicio and excepcion.hora_fin:
-                if not (excepcion.hora_inicio <= hora <= excepcion.hora_fin):
-                    return JsonResponse({"error": "El horario no está disponible por una excepción"}, status=400)
-
-        if not (horario.hora_inicio <= hora < horario.hora_fin):
-            return JsonResponse({"error": "La hora está fuera del horario de atención"}, status=400)
+        vendedor = empresa.usuarios.filter(rol="DUENO", is_active=True).order_by("id").first()
+        if not vendedor:
+            return JsonResponse({"error": "La empresa no tiene una cuenta propietaria para registrar la venta"}, status=400)
+        if hora.strftime("%H:%M") not in _horas_disponibles(empresa, fecha, servicio):
+            return JsonResponse({"error": "Ese horario ya no está disponible"}, status=409)
 
         try:
             with transaction.atomic():
@@ -239,18 +265,56 @@ class ReservarCitaView(View):
                     defaults={"nombre": nombre, "email": (data.get("email") or "").strip() or None},
                 )
                 cita = Cita.objects.create(
-                    empresa=empresa, sucursal=sucursal, servicio=servicio, cliente=cliente,
+                    empresa=empresa, sucursal=None, servicio=servicio, cliente=cliente,
                     fecha=fecha, hora=hora, precio_cobrado=Decimal(servicio.precio),
                     duracion_minutos=servicio.duracion_minutos,
                     notas=(data.get("notas") or "").strip() or None,
+                )
+                venta = Venta.objects.create(
+                    empresa=empresa,
+                    sucursal=None,
+                    cliente=cliente,
+                    cita=cita,
+                    vendedor=vendedor,
+                    subtotal=Decimal(servicio.precio),
+                    total=Decimal(servicio.precio),
+                    estado="PENDIENTE",
+                )
+                DetalleVenta.objects.create(
+                    venta=venta,
+                    servicio=servicio,
+                    descripcion=servicio.nombre,
+                    cantidad=1,
+                    precio_unitario=Decimal(servicio.precio),
+                    subtotal=Decimal(servicio.precio),
                 )
         except IntegrityError:
             return JsonResponse({"error": "Ese horario ya no está disponible"}, status=409)
 
         return JsonResponse({"cita": {
             "id": cita.id, "fecha": cita.fecha.isoformat(), "hora": cita.hora.isoformat(),
-            "estado": cita.estado, "servicio": servicio.nombre, "sucursal": sucursal.nombre,
+            "estado": cita.estado, "servicio": servicio.nombre, "direccion": empresa.direccion,
+            "venta_id": venta.id,
         }}, status=201)
+
+
+class DisponibilidadCitasView(View):
+    """GET con los horarios realmente libres para una fecha y servicio."""
+
+    def get(self, request, slug):
+        empresa = get_object_or_404(Empresa, slug=slug, activa=True)
+        if not empresa.tiene_acceso:
+            return JsonResponse({"error": "La empresa no tiene el servicio activo"}, status=403)
+        try:
+            fecha = date.fromisoformat(request.GET.get("fecha", ""))
+            servicio = Servicio.objects.get(
+                pk=int(request.GET.get("servicio_id", "")), empresa=empresa, activo=True,
+            )
+        except (ValueError, TypeError, Servicio.DoesNotExist):
+            return JsonResponse({"error": "fecha y servicio_id válidos son obligatorios"}, status=400)
+        if fecha < timezone.localdate():
+            return JsonResponse({"horas": []})
+        return JsonResponse({"horas": _horas_disponibles(empresa, fecha, servicio)})
 
 
 def _empresa_superadmin_a_dict(empresa):

@@ -20,7 +20,7 @@ export default function LandingEmpresa() {
   if (error) return <main className="tenant-state tenant-error">No fue posible cargar este negocio: {error}</main>
   if (!data) return <main className="tenant-state">Cargando la experiencia del negocio…</main>
 
-  const { empresa, landing, servicios, sucursales } = data
+  const { empresa, landing, servicios } = data
   const gallery = (landing.galeria_urls || []).filter(Boolean)
   const title = landing.titulo_hero || empresa.nombre || ''
   const subtitle = landing.subtitulo_hero || ''
@@ -111,7 +111,7 @@ export default function LandingEmpresa() {
         <div className="tenant-footer-info">
           {empresa.telefono && <p><span>Teléfono:</span> {empresa.telefono}</p>}
           {empresa.whatsapp && <p><span>WhatsApp:</span> {empresa.whatsapp}</p>}
-          {sucursales[0] && <p><span>Dirección:</span> {sucursales[0].direccion || sucursales[0].nombre}</p>}
+          {empresa.direccion && <p><span>Dirección:</span> {empresa.direccion}</p>}
           <div className="tenant-socials">
             {landing.instagram_url && <a href={landing.instagram_url} target="_blank" rel="noreferrer" aria-label="Instagram"><i className="fab fa-instagram"></i></a>}
             {landing.facebook_url && <a href={landing.facebook_url} target="_blank" rel="noreferrer" aria-label="Facebook"><i className="fab fa-facebook-f"></i></a>}

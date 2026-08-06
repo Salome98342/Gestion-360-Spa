@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
+      host: '0.0.0.0',
       proxy: {
         '/api': {
           target: env.VITE_BACKEND_ORIGIN || 'http://127.0.0.1:8000',
