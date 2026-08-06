@@ -55,6 +55,7 @@ export default function LandingEmpresa() {
 
           <div className="tenant-hero-media">
             <img className="tenant-hero-image" src={landing.imagen_hero_url || HERO_DEFAULT} alt={landing.titulo_hero || empresa.nombre} />
+            <span className="tenant-hero-note"><i className="fas fa-sparkles"></i> Belleza a tu medida</span>
           </div>
         </header>
       </div>
@@ -72,7 +73,7 @@ export default function LandingEmpresa() {
           {servicios.map((service) => (
             <article className="tenant-card" key={service.id}>
               <div className="tenant-card-heading">
-                <h3>{service.nombre}</h3>
+                <div className="tenant-service-title"><span className="tenant-service-icon"><i className={`fas ${service.icono || 'fa-spa'}`}></i></span><h3>{service.nombre}</h3></div>
                 <span className="tenant-card-badge">{service.duracion_minutos} min</span>
               </div>
               <p className="tenant-card-copy">{service.descripcion || 'Servicio profesional personalizado.'}</p>
@@ -111,6 +112,11 @@ export default function LandingEmpresa() {
           {empresa.telefono && <p><span>Teléfono:</span> {empresa.telefono}</p>}
           {empresa.whatsapp && <p><span>WhatsApp:</span> {empresa.whatsapp}</p>}
           {sucursales[0] && <p><span>Dirección:</span> {sucursales[0].direccion || sucursales[0].nombre}</p>}
+          <div className="tenant-socials">
+            {landing.instagram_url && <a href={landing.instagram_url} target="_blank" rel="noreferrer" aria-label="Instagram"><i className="fab fa-instagram"></i></a>}
+            {landing.facebook_url && <a href={landing.facebook_url} target="_blank" rel="noreferrer" aria-label="Facebook"><i className="fab fa-facebook-f"></i></a>}
+            {landing.tiktok_url && <a href={landing.tiktok_url} target="_blank" rel="noreferrer" aria-label="TikTok"><i className="fab fa-tiktok"></i></a>}
+          </div>
         </div>
       </footer>
 

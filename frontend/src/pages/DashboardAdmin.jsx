@@ -1,5 +1,5 @@
 ﻿﻿import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import './DashboardAdmin.css'
 import {
   configuracionLanding,
@@ -41,7 +41,8 @@ const formatMoney = (value) => Number(value || 0).toLocaleString('es-CO', { styl
 
 export default function DashboardAdmin() {
   const { slug } = useParams()
-  const [tab, setTab] = useState('landing')
+  const navigate = useNavigate()
+  const [tab, setTab] = useState('resumen')
   const [user, setUser] = useState(null)
   const [form, setForm] = useState(initialForm)
   const [login, setLogin] = useState({ username: '', password: '' })
@@ -71,6 +72,12 @@ export default function DashboardAdmin() {
     setLoading(true)
     try {
       const session = await sesionActual()
+      if (session.usuario.empresa_slug !== slug || session.usuario.rol !== 'DUENO') {
+        await cerrarSesion()
+        setError('Inicia sesión con la cuenta dueña de este negocio.')
+        setUser(null)
+        return
+      }
       const config = await configuracionLanding()
       setUser(session.usuario)
       setForm({
@@ -79,9 +86,12 @@ export default function DashboardAdmin() {
         ...config.landing,
         galeria_urls: config.landing.galeria_urls || [],
       })
-    } catch {
+    } catch (err) {
       setUser(null)
       setForm(initialForm)
+      if (err && err.message && err.message.indexOf('No autenticado') === -1) {
+        setError(err.message)
+      }
     } finally {
       setLoading(false)
     }
@@ -117,22 +127,33 @@ export default function DashboardAdmin() {
     }
   }
 
-useEffect(() => {
+  useEffect(() => {
     async function init() {
       await loadConfig()
     }
     init()
   }, [slug])
 
+  // Cargar servicios, productos y ventas al iniciar sesión para que las
+  // estadísticas del panel no aparezcan en 0.
   useEffect(() => {
     async function refreshData() {
+      if (!user) return
+      await Promise.all([loadServicios(), loadProductos(), loadVentas()])
+    }
+    refreshData()
+  }, [user])
+
+  // Al cambiar de pestaña, refrescar los datos correspondientes.
+  useEffect(() => {
+    async function refreshOnTab() {
       if (!user) return
       if (tab === 'servicios') await loadServicios()
       if (tab === 'productos') await loadProductos()
       if (tab === 'ventas') await loadVentas()
     }
-    refreshData()
-  }, [tab, user])
+    refreshOnTab()
+  }, [tab])
 
   const update = (event) => {
     const { name, type, value, checked } = event.target
@@ -143,7 +164,7 @@ useEffect(() => {
     event.preventDefault()
     setError('')
     try {
-      await iniciarSesion(login)
+      await iniciarSesion({ ...login, empresa_slug: slug })
       await loadConfig()
     } catch (err) {
       setError(err.message)
@@ -185,7 +206,7 @@ useEffect(() => {
     setServicios([])
     setProductos([])
     setVentas([])
-    setTab('landing')
+    setTab('resumen')
   }
 
   // ── Handlers Servicios ─────────────────────────────────────
@@ -363,9 +384,10 @@ useEffect(() => {
   }
 
   const tabs = [
-    { key: 'landing', label: 'Landing', icon: 'fa-landmark' },
+    { key: 'resumen', label: 'Resumen', icon: 'fa-chart-pie' },
+    { key: 'landing', label: 'Mi landing', icon: 'fa-wand-magic-sparkles' },
     { key: 'servicios', label: 'Servicios', icon: 'fa-hand-sparkles' },
-    { key: 'productos', label: 'Productos', icon: 'fa-boxes-stacked' },
+    { key: 'productos', label: 'Inventario', icon: 'fa-boxes-stacked' },
     { key: 'ventas', label: 'Ventas', icon: 'fa-receipt' },
   ]
 
@@ -403,19 +425,34 @@ useEffect(() => {
           </nav>
         </header>
 
-        <div className="admin-overview-grid">
-          {overviewStats.map((item) => (
-            <div key={item.label} className={`admin-overview-card ${item.accent}`}>
-              <div className="admin-overview-icon">
-                <i className={`fas ${item.icon}`}></i>
-              </div>
-              <div>
-                <p>{item.label}</p>
-                <strong>{item.value}</strong>
-              </div>
+        {tab === 'resumen' && (
+          <>
+            <div className="admin-overview-grid">
+              {overviewStats.map((item) => (
+                <div key={item.label} className={`admin-overview-card ${item.accent}`}>
+                  <div className="admin-overview-icon">
+                    <i className={`fas ${item.icon}`}></i>
+                  </div>
+                  <div>
+                    <p>{item.label}</p>
+                    <strong>{item.value}</strong>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+            <section className="admin-card admin-welcome-card">
+              <div>
+                <p className="admin-preview-label">Tu espacio de trabajo</p>
+                <h2>Todo lo esencial, sin complicaciones.</h2>
+                <p className="tenant-muted">Actualiza la imagen de tu marca, organiza servicios y mantén el inventario al día desde un solo lugar.</p>
+              </div>
+              <div className="admin-quick-actions">
+                <button type="button" className="tenant-button" onClick={() => setTab('landing')}>Personalizar landing</button>
+                <button type="button" className="tenant-button secondary" onClick={() => setTab('productos')}>Revisar inventario</button>
+              </div>
+            </section>
+          </>
+        )}
 
         {tab === 'landing' && (
           <form className="admin-card" onSubmit={saveConfig}>
@@ -759,7 +796,7 @@ useEffect(() => {
             )}
           </div>
         )}
-      </div>
+</div>
     </main>
   )
 }

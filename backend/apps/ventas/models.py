@@ -1,8 +1,8 @@
-from django.db import models
-from django.conf import settings
+from decimal import Decimal
 
-# Ajusta las importaciones según el nombre de tu app principal (ej: 'core')
-# from core.models import Empresa, Sucursal, Cliente, Cita, Servicio
+from django.conf import settings
+from django.db import models
+
 
 class Producto(models.Model):
     empresa = models.ForeignKey('empresas.Empresa', on_delete=models.CASCADE, related_name='productos')
@@ -11,7 +11,7 @@ class Producto(models.Model):
     codigo_barras = models.TextField(null=True, blank=True)
     descripcion = models.TextField(null=True, blank=True)
     precio_venta = models.DecimalField(max_digits=12, decimal_places=2)
-    costo = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    costo = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     stock_actual = models.IntegerField(default=0)
     activo = models.BooleanField(default=True)
     creado_en = models.DateTimeField(auto_now_add=True)
@@ -50,9 +50,9 @@ class CajaDiaria(models.Model):
     usuario_cierra = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, null=True, blank=True, related_name='cajas_cerradas')
     fecha_apertura = models.DateTimeField(auto_now_add=True)
     fecha_cierre = models.DateTimeField(null=True, blank=True)
-    monto_inicial = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    monto_final_calc = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    monto_final_real = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    monto_inicial = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    monto_final_calc = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    monto_final_real = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     estado = models.CharField(max_length=20, choices=ESTADOS, default='ABIERTA')
     observaciones = models.TextField(null=True, blank=True)
 
@@ -73,10 +73,10 @@ class Venta(models.Model):
     cita = models.ForeignKey('empresas.Cita', on_delete=models.SET_NULL, null=True, blank=True, related_name='ventas')
     vendedor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT)
     fecha_emision = models.DateTimeField(auto_now_add=True)
-    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    impuestos = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    descuento = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    impuestos = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    descuento = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     estado = models.CharField(max_length=20, choices=ESTADOS, default='COMPLETADA')
     creada_en = models.DateTimeField(auto_now_add=True)
 
@@ -89,7 +89,7 @@ class DetalleVenta(models.Model):
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
     servicio = models.ForeignKey('servicios.Servicio', on_delete=models.SET_NULL, null=True, blank=True)
     producto = models.ForeignKey(Producto, on_delete=models.SET_NULL, null=True, blank=True)
-    descripcion = models.TextField() # Snapshot del nombre del prod/serv
+    descripcion = models.TextField()  # Snapshot del nombre del prod/serv
     cantidad = models.IntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)

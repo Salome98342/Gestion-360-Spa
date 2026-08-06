@@ -19,7 +19,7 @@ export default function LicenciaModal({
                 <div className="licencia-modal-header">
                     <div className="licencia-modal-title">
                         <i className="fas fa-id-card licencia-icon"></i>
-                        Gestionar Licencia
+                        Nuevo negocio
                     </div>
                     <button onClick={onClose} className="licencia-modal-close">
                         <i className="fas fa-times"></i>
@@ -93,6 +93,16 @@ export default function LicenciaModal({
                             </div>
                         </div>
 
+                        <div className="account-form-section">
+                            <div><p className="account-form-title"><i className="fas fa-user-shield"></i> Cuenta de la propietaria</p><p className="licencia-modal-info">Recibirá acceso al panel de este negocio.</p></div>
+                            <div className="licencia-modal-grid">
+                                <div className="licencia-modal-group"><label>Nombre</label><input name="admin_nombre" value={form.admin_nombre} onChange={onChange} className="licencia-modal-field" placeholder="Nombre de la dueña" /></div>
+                                <div className="licencia-modal-group"><label>Correo</label><input name="admin_email" value={form.admin_email} onChange={onChange} type="email" className="licencia-modal-field" placeholder="correo@negocio.com" /></div>
+                                <div className="licencia-modal-group"><label>Usuario</label><input name="admin_username" value={form.admin_username} onChange={onChange} required className="licencia-modal-field" placeholder="ej. glowcentro" /></div>
+                                <div className="licencia-modal-group"><label>Contraseña</label><input name="admin_password" value={form.admin_password} onChange={onChange} type="password" minLength="8" required className="licencia-modal-field" placeholder="Mínimo 8 caracteres" /></div>
+                            </div>
+                        </div>
+
                         <div className="licencia-modal-actions">
                             <button type="button" onClick={onClose}
                                 className="licencia-modal-button cancel">
@@ -101,7 +111,7 @@ export default function LicenciaModal({
                             <button type="submit" disabled={isSubmitting}
                                 className="licencia-modal-button submit"
                             >
-                                {isSubmitting ? 'Generando...' : 'Generar Licencia'}
+                                {isSubmitting ? 'Creando...' : 'Crear negocio y acceso'}
                             </button>
                         </div>
                     </form>

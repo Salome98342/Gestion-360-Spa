@@ -16,17 +16,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-if not SECRET_KEY:
-    # Útil sólo para el entorno local. En producción la variable es obligatoria.
-    SECRET_KEY = 'django-insecure-development-only-change-me'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
 
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        # Útil sólo para el entorno local. En producción la variable es obligatoria.
+        SECRET_KEY = 'django-insecure-development-only-change-me'
+    else:
+        raise ImproperlyConfigured('DJANGO_SECRET_KEY must be set in production')
+
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
-if not SECRET_KEY and not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes'):
-    raise ImproperlyConfigured('DJANGO_SECRET_KEY must be set in production')
 
 # Orígenes de confianza para CSRF.
 # El frontend (Vite en desarrollo) corre en localhost:5173 y, al pasar por el

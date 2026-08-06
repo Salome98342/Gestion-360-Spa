@@ -102,6 +102,7 @@
 .tenant-landing .tenant-hero-media {
   display: flex;
   justify-content: center;
+  position: relative;
 }
 
 .tenant-landing .tenant-hero-image {
@@ -110,6 +111,21 @@
   border-radius: 32px;
   object-fit: cover;
   box-shadow: 0 32px 90px rgba(23, 32, 51, 0.16);
+}
+
+.tenant-landing .tenant-hero-note {
+  position: absolute;
+  right: -1rem;
+  bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 35px rgba(67, 20, 52, 0.14);
+  color: var(--primary);
+  font-size: 0.84rem;
+  font-weight: 800;
+  animation: gentle-float 4s ease-in-out infinite;
 }
 
 .tenant-landing .tenant-section-header {
@@ -164,6 +180,22 @@
   margin: 0;
   font-size: 1.15rem;
   color: #111827;
+}
+
+.tenant-service-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tenant-service-icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary) 11%, white);
+  color: var(--primary);
 }
 
 .tenant-card-badge {
@@ -242,6 +274,33 @@
   line-height: 1.8;
 }
 
+.tenant-socials {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.15rem;
+}
+
+.tenant-socials a {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  text-decoration: none;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.tenant-socials a:hover {
+  transform: translateY(-2px);
+  background: var(--primary);
+}
+
+@keyframes gentle-float {
+  50% { transform: translateY(-7px); }
+}
+
 @media (max-width: 960px) {
   .tenant-landing .tenant-hero {
     grid-template-columns: 1fr;
@@ -262,6 +321,10 @@
   }
   .tenant-landing .tenant-hero-image {
     height: 320px;
+  }
+  .tenant-landing .tenant-hero-note {
+    right: 0.75rem;
+    bottom: 1rem;
   }
   .tenant-landing .tenant-card {
     padding: 1.5rem;

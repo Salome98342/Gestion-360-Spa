@@ -48,6 +48,10 @@ export const eliminarServicio = (id) => api(`${SERVICES_ROUTE}/${id}/`, { method
 export const listarEmpresasSuperAdmin = () => api(`${COMPANIES_ROUTE}/superadmin/`)
 export const crearEmpresaSuperAdmin = (empresa) => api(`${COMPANIES_ROUTE}/superadmin/`, { method: 'POST', body: empresa, csrf: true })
 export const listarPlanesLicencia = () => api(`${COMPANIES_ROUTE}/superadmin/planes/`)
+export const accionLicencia = (id, accion, data = {}) => api(`${COMPANIES_ROUTE}/superadmin/licencias/${id}/${accion}/`, { method: 'POST', body: data, csrf: true })
+export const restablecerClavePropietario = (empresaId, password) => api(`${COMPANIES_ROUTE}/superadmin/empresas/${empresaId}/cuenta/`, { method: 'POST', body: { password }, csrf: true })
+export const detalleEmpresaSuperAdmin = (empresaId) => api(`${COMPANIES_ROUTE}/superadmin/empresas/${empresaId}/`)
+export const actualizarEmpresaSuperAdmin = (empresaId, empresa) => api(`${COMPANIES_ROUTE}/superadmin/empresas/${empresaId}/`, { method: 'PATCH', body: empresa, csrf: true })
 
 // ── Ventas y productos (panel del dueño) ─────────────────────────────────────
 export const listarVentas = () => api(`${SALES_ROUTE}/`)

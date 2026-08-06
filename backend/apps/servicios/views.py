@@ -54,9 +54,13 @@ class ServicioListCreateView(EmpresaAutenticadaView):
         except (KeyError, InvalidOperation, ValueError, TypeError):
             return JsonResponse({"error": "Precio y duración deben ser valores válidos"}, status=400)
 
+        sucursal_id = data.get("sucursal_id")
+        if sucursal_id and not request.user.empresa.sucursales.filter(id=sucursal_id, activa=True).exists():
+            return JsonResponse({"error": "La sucursal no pertenece a la empresa"}, status=400)
+
         servicio = Servicio.objects.create(
             empresa=request.user.empresa,
-            sucursal_id=data.get("sucursal_id") or None,
+            sucursal_id=sucursal_id or None,
             nombre=nombre,
             duracion_minutos=duracion,
             precio=precio,

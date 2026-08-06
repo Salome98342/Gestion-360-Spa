@@ -1,3 +1,8 @@
+// NOTA: Este archivo es LEGADO/OBSOLETO.
+// Fue el backend original basado en Express + archivos JSON (plantillas/).
+// El sistema actual usa el backend Django en /backend (sesión + licencias multi-tenant).
+// No se usa en producción; se conserva únicamente como referencia histórica.
+
 require('dotenv').config();
 const express = require('express');
 const fs = require('fs');

@@ -1,146 +1,31 @@
-import { useEffect, useState } from 'react';
-import LicenciaModal from './LicenciaModal';
-import { listarEmpresasSuperAdmin, crearEmpresaSuperAdmin, listarPlanesLicencia } from '../../services/api';
+import { useEffect, useState } from 'react'
+import LicenciaModal from './LicenciaModal'
+import EmpresaDetailModal from './EmpresaDetailModal'
+import { listarEmpresasSuperAdmin, crearEmpresaSuperAdmin, listarPlanesLicencia, accionLicencia, detalleEmpresaSuperAdmin, restablecerClavePropietario } from '../../services/api'
 import './EmpresasManager.css'
 
-const initialForm = {
-    nombre: '',
-    slug: '',
-    telefono: '',
-    whatsapp: '',
-    plan_id: '',
-    fecha_vencimiento: '',
-};
+const initialForm = { nombre: '', slug: '', telefono: '', whatsapp: '', plan_id: '', fecha_vencimiento: '', admin_nombre: '', admin_email: '', admin_username: '', admin_password: '' }
 
 export default function EmpresasManager() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [empresas, setEmpresas] = useState([]);
-    const [planes, setPlanes] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState('');
-    const [form, setForm] = useState(initialForm);
-
-    useEffect(() => {
-        async function loadData() {
-            setLoading(true);
-            try {
-                const [empresasData, planesData] = await Promise.all([listarEmpresasSuperAdmin(), listarPlanesLicencia()]);
-                setEmpresas(empresasData.empresas || []);
-                setPlanes(planesData.planes || []);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        }
-        loadData();
-    }, []);
-
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-        setForm((current) => ({ ...current, [name]: value }));
-    };
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setSubmitting(true);
-        setError('');
-        try {
-            const payload = {
-                ...form,
-                telefono: form.telefono || null,
-                whatsapp: form.whatsapp || null,
-            };
-            const response = await crearEmpresaSuperAdmin(payload);
-            setEmpresas((current) => [response, ...current]);
-            setForm(initialForm);
-            setIsModalOpen(false);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const statusLabel = (empresa) => {
-        if (empresa.tiene_acceso) return 'Activa';
-        return 'Inactiva';
-    };
-
-    return (
-        <div className="empresas-manager">
-            <div className="empresas-header">
-                <h3>
-                    <i className="fas fa-store empresas-header-icon"></i>
-                    Locales y Licencias Activas
-                </h3>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="btn-primary"
-                >
-                    <i className="fas fa-plus"></i> Nueva Empresa
-                </button>
-            </div>
-
-            {error && <div className="notice error mb-4">{error}</div>}
-
-            <div className="table-wrapper">
-                <table className="empresas-table">
-                    <thead>
-                        <tr>
-                            <th>Empresa / URL</th>
-                            <th>Plan</th>
-                            <th>Vencimiento</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr className="table-empty-row"><td colSpan="5" className="table-empty-cell">Cargando empresas...</td></tr>
-                        ) : empresas.length === 0 ? (
-                            <tr className="table-empty-row"><td colSpan="5" className="table-empty-cell">No hay empresas registradas.</td></tr>
-                        ) : (
-                            empresas.map((empresa) => (
-                                <tr key={empresa.id} className="table-row-hover">
-                                    <td>
-                                        <div className="empresas-row-name">{empresa.nombre}<span className="empresa-slug">/{empresa.slug}</span></div>
-                                    </td>
-                                    <td>{empresa.licencia?.plan || 'Sin plan'}</td>
-                                    <td>{empresa.licencia?.fecha_vencimiento || '—'}</td>
-                                    <td>
-                                        <span className={`status-pill ${empresa.tiene_acceso ? 'active' : 'inactive'}`}>
-                                            {statusLabel(empresa)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className="action-buttons">
-                                            <button className="action-button" title="Renovar Licencia">
-                                                <i className="fas fa-sync-alt"></i>
-                                            </button>
-                                            <button className="action-button" title="Suspender Servicio">
-                                                <i className="fas fa-ban"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            <LicenciaModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                form={form}
-                plans={planes}
-                onChange={handleChange}
-                onSubmit={handleSubmit}
-                isSubmitting={submitting}
-                error={error}
-            />
-        </div>
-    );
+  const [isModalOpen, setIsModalOpen] = useState(false); const [empresas, setEmpresas] = useState([]); const [planes, setPlanes] = useState([]); const [loading, setLoading] = useState(true); const [submitting, setSubmitting] = useState(false); const [error, setError] = useState(''); const [form, setForm] = useState(initialForm); const [createdAccount, setCreatedAccount] = useState(null); const [selectedCompany, setSelectedCompany] = useState(null)
+  const loadData = async () => { setLoading(true); try { const [companies, plansData] = await Promise.all([listarEmpresasSuperAdmin(), listarPlanesLicencia()]); setEmpresas(companies.empresas || []); setPlanes(plansData.planes || []) } catch (err) { setError(err.message) } finally { setLoading(false) } }
+  useEffect(() => { loadData() }, [])
+  const handleChange = ({ target: { name, value } }) => setForm((current) => ({ ...current, [name]: value }))
+  const handleSubmit = async (event) => { event.preventDefault(); setSubmitting(true); setError(''); try { const response = await crearEmpresaSuperAdmin({ ...form, telefono: form.telefono || null, whatsapp: form.whatsapp || null }); setEmpresas((current) => [response, ...current]); setCreatedAccount({ empresa: response.nombre, username: form.admin_username, password: form.admin_password, slug: response.slug }); setForm(initialForm); setIsModalOpen(false) } catch (err) { setError(err.message) } finally { setSubmitting(false) } }
+  const refresh = async () => { const data = await listarEmpresasSuperAdmin(); setEmpresas(data.empresas || []) }
+  const handleLicense = async (empresa, accion) => { const id = empresa.licencia?.id; if (!id) return setError('Esta empresa no tiene una licencia para administrar.'); let data = {}; if (accion === 'renovar') { const meses = window.prompt(`¿Cuántos meses deseas renovar para ${empresa.nombre}?`, '1'); if (!meses) return; data = { meses: Number(meses) } } else if (!window.confirm(`¿Deseas ${accion === 'activar' ? 'reactivar' : 'suspender'} el servicio de ${empresa.nombre}?`)) return; try { await accionLicencia(id, accion, data); await refresh() } catch (err) { setError(err.message) } }
+  const handleResetPassword = async (empresa) => { if (!empresa.propietario) return setError('Esta empresa no tiene una cuenta propietaria.'); const password = window.prompt(`Nueva contraseña para ${empresa.propietario.username} (mínimo 8 caracteres):`); if (password === null) return; if (password.length < 8) return setError('La contraseña debe tener al menos 8 caracteres.'); try { await restablecerClavePropietario(empresa.id, password); setCreatedAccount({ empresa: empresa.nombre, username: empresa.propietario.username, password, slug: empresa.slug }) } catch (err) { setError(err.message) } }
+  const copyCredentials = async () => { try { await navigator.clipboard.writeText(`Acceso a ${createdAccount.empresa}\nPanel: ${window.location.origin}/${createdAccount.slug}/admin\nUsuario: ${createdAccount.username}\nContraseña: ${createdAccount.password}`) } catch { /* Visible para copiar manualmente. */ } }
+  const openDetails = async (id) => { try { setSelectedCompany(await detalleEmpresaSuperAdmin(id)) } catch (err) { setError(err.message) } }
+  return <div className="empresas-manager">
+    <div className="empresas-header"><div><p className="manager-eyebrow">Operación de negocios</p><h3><i className="fas fa-store empresas-header-icon"></i>Locales, accesos y licencias</h3></div><button onClick={() => setIsModalOpen(true)} className="btn-primary"><i className="fas fa-plus"></i> Crear negocio</button></div>
+    {error && <div className="notice error">{error}</div>}
+    {createdAccount && <section className="account-created-card"><div className="account-created-icon"><i className="fas fa-key"></i></div><div><p className="account-created-eyebrow">Acceso de propietaria listo</p><strong>{createdAccount.empresa}</strong><p>Usuario: <b>{createdAccount.username}</b> · Contraseña: <b>{createdAccount.password}</b></p></div><div className="account-created-actions"><button className="action-button" title="Copiar acceso" onClick={copyCredentials}><i className="fas fa-copy"></i></button><button className="action-button" title="Ocultar" onClick={() => setCreatedAccount(null)}><i className="fas fa-times"></i></button></div></section>}
+    <div className="table-wrapper"><table className="empresas-table"><thead><tr><th>Negocio</th><th>Cuenta propietaria</th><th>Plan y vencimiento</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+      {loading ? <tr><td colSpan="5" className="table-empty-cell">Cargando negocios...</td></tr> : empresas.map((empresa) => { const canReactivate = Boolean(empresa.licencia && !empresa.tiene_acceso && empresa.licencia.estado === 'SUSPENDIDA'); return <tr key={empresa.id} className="table-row-hover company-row" onClick={() => openDetails(empresa.id)}><td><div className="empresas-row-name"><strong>{empresa.nombre}</strong><span className="empresa-slug">/{empresa.slug}</span></div></td><td>{empresa.propietario ? <div className="owner-cell"><i className="fas fa-user-circle"></i>{empresa.propietario.username}</div> : <span className="missing-owner">Sin cuenta</span>}</td><td><div className="plan-cell"><strong>{empresa.licencia?.plan || 'Sin plan'}</strong><span>{empresa.licencia?.fecha_vencimiento ? new Date(empresa.licencia.fecha_vencimiento).toLocaleDateString('es-CO') : 'Sin vencimiento'}</span></div></td><td><span className={`status-pill ${empresa.tiene_acceso ? 'active' : 'inactive'}`}>{empresa.tiene_acceso ? 'Activa' : empresa.licencia?.estado === 'SUSPENDIDA' ? 'Suspendida' : 'Inactiva'}</span></td><td><div className="action-buttons"><button className="action-button" title="Renovar licencia" onClick={() => handleLicense(empresa, 'renovar')}><i className="fas fa-sync-alt"></i></button><button className="action-button" title={canReactivate ? 'Reactivar servicio' : 'Suspender servicio'} disabled={!empresa.licencia || (!empresa.tiene_acceso && !canReactivate)} onClick={() => handleLicense(empresa, canReactivate ? 'activar' : 'suspender')}><i className={`fas ${canReactivate ? 'fa-play' : 'fa-ban'}`}></i></button><button className="action-button" title="Restablecer contraseña" disabled={!empresa.propietario} onClick={() => handleResetPassword(empresa)}><i className="fas fa-key"></i></button><a className="action-button" title="Abrir landing" href={`/${empresa.slug}`} target="_blank" rel="noreferrer"><i className="fas fa-arrow-up-right-from-square"></i></a></div></td></tr> })}
+    </tbody></table></div>
+    <p className="manager-help">Acciones: ↻ renovar licencia · ⊘ suspender · ▶ reactivar una licencia suspendida · 🔑 restablecer contraseña · ↗ abrir landing.</p>
+    <LicenciaModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} plans={planes} onChange={handleChange} onSubmit={handleSubmit} isSubmitting={submitting} error={error} />
+    <EmpresaDetailModal empresa={selectedCompany} onClose={() => setSelectedCompany(null)} onSaved={(updated) => { setEmpresas((current) => current.map((item) => item.id === updated.id ? updated : item)); setSelectedCompany(null) }} />
+  </div>
 }

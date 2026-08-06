@@ -50,6 +50,11 @@ class LoginView(View):
     """
 
     def post(self, request):
+        # Nunca conservar una sesión previa al intentar iniciar otra. Sin esto,
+        # fallar el login de soporte podía dejar activa la cookie de una dueña
+        # y las llamadas posteriores al SuperAdmin respondían 403.
+        if request.user.is_authenticated:
+            logout(request)
         try:
             data = json.loads(request.body or "{}")
         except json.JSONDecodeError:
@@ -57,6 +62,7 @@ class LoginView(View):
 
         username = (data.get("username") or "").strip()
         password = data.get("password") or ""
+        empresa_slug = (data.get("empresa_slug") or "").strip()
 
         if not username or not password:
             return JsonResponse({"error": "Usuario y contraseña son obligatorios"}, status=400)
@@ -68,6 +74,14 @@ class LoginView(View):
         if not usuario.puede_administrar_empresa:
             return JsonResponse(
                 {"error": "Este usuario no tiene acceso activo (revisa la licencia de la empresa)."},
+                status=403,
+            )
+
+        # El mismo formulario se usa desde /<empresa>/admin. Evitamos que
+        # una sesión de otro negocio se abra bajo una URL que no le pertenece.
+        if empresa_slug and (not usuario.empresa_id or usuario.empresa.slug != empresa_slug):
+            return JsonResponse(
+                {"error": "Esta cuenta no pertenece al negocio de esta dirección."},
                 status=403,
             )
 

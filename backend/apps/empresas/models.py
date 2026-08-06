@@ -134,8 +134,8 @@ class LicenciaToken(models.Model):
     @transaction.atomic
     def activar(self, ahora=None):
         ahora = ahora or timezone.now()
-        if self.estado not in {"DISPONIBLE", "VENCIDA"}:
-            raise ValidationError("Sólo se puede activar una licencia disponible o vencida.")
+        if self.estado not in {"DISPONIBLE", "VENCIDA", "SUSPENDIDA"}:
+            raise ValidationError("Sólo se puede activar una licencia disponible, vencida o suspendida.")
         if self.fecha_vencimiento <= ahora:
             raise ValidationError("No se puede activar una licencia ya vencida; renuévela primero.")
         self.estado = "ACTIVA"
