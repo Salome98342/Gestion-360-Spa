@@ -145,4 +145,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 
+# Archivos subidos por cada empresa.  Se deja fuera del c\u00f3digo del frontend
+# para que las im\u00e1genes no se pierdan al generar una nueva compilaci\u00f3n.
+IMAGES_ROOT = BASE_DIR.parent / 'images'
+IMAGES_URL = '/images/'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

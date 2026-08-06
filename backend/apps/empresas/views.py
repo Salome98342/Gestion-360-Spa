@@ -1,14 +1,18 @@
 """API pública para el landing y el agendador de cada empresa."""
 
 import json
+import uuid
 from datetime import date, datetime, time
 from decimal import Decimal
+from pathlib import Path
 
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views import View
@@ -109,6 +113,55 @@ class ConfiguracionLandingView(View):
         empresa.save()
         landing.save()
         return JsonResponse(_landing_a_dict(empresa, landing))
+
+
+class ImagenEmpresaUploadView(View):
+    """Recibe una imagen optimizada desde el panel del due\u00f1o."""
+
+    MAX_SIZE_BYTES = 1 * 1024 * 1024
+    ALLOWED_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
+
+    @staticmethod
+    def _es_imagen_valida(archivo, content_type):
+        encabezado = archivo.read(16)
+        archivo.seek(0)
+        firmas = {
+            "image/jpeg": encabezado.startswith(b"\xff\xd8\xff"),
+            "image/png": encabezado.startswith(b"\x89PNG\r\n\x1a\n"),
+            "image/webp": encabezado.startswith(b"RIFF") and encabezado[8:12] == b"WEBP",
+        }
+        return firmas.get(content_type, False)
+
+    def dispatch(self, request, *args, **kwargs):
+        usuario = request.user
+        if not usuario.is_authenticated:
+            return JsonResponse({"error": "No autenticado"}, status=401)
+        if not usuario.empresa_id or usuario.rol != "DUENO":
+            return JsonResponse({"error": "S\u00f3lo el due\u00f1o de la empresa puede subir im\u00e1genes"}, status=403)
+        if not usuario.puede_administrar_empresa:
+            return JsonResponse({"error": "La licencia de la empresa no est\u00e1 activa"}, status=403)
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        archivo = request.FILES.get("imagen")
+        if not archivo:
+            return JsonResponse({"error": "Debes seleccionar una imagen."}, status=400)
+        if archivo.content_type not in self.ALLOWED_TYPES:
+            return JsonResponse({"error": "S\u00f3lo se permiten im\u00e1genes JPG, PNG o WEBP."}, status=400)
+        if not self._es_imagen_valida(archivo, archivo.content_type):
+            return JsonResponse({"error": "El archivo no contiene una imagen v\u00e1lida."}, status=400)
+        if archivo.size > self.MAX_SIZE_BYTES:
+            return JsonResponse({"error": "La imagen optimizada no puede superar 1 MB."}, status=400)
+
+        # El slug es el identificador seguro y estable del nombre de empresa.
+        empresa = request.user.empresa
+        carpeta_empresa = Path(settings.IMAGES_ROOT) / empresa.slug
+        carpeta_empresa.mkdir(parents=True, exist_ok=True)
+        extension = self.ALLOWED_TYPES[archivo.content_type]
+        nombre = f"{uuid.uuid4().hex}{extension}"
+        storage = FileSystemStorage(location=carpeta_empresa, base_url=f"{settings.IMAGES_URL}{empresa.slug}/")
+        guardado = storage.save(nombre, archivo)
+        return JsonResponse({"url": storage.url(guardado) + f"?v={uuid.uuid4().hex[:8]}"}, status=201)
 
 
 class ReservarCitaView(View):
@@ -319,6 +372,9 @@ class SuperAdminEmpresaListCreateView(LoginRequiredMixin, UserPassesTestMixin, V
             )
             propietario.set_password(password)
             propietario.save()
+
+        # Se crea desde el alta, aunque a\u00fan no se haya cargado ning\u00fan archivo.
+        (Path(settings.IMAGES_ROOT) / empresa.slug).mkdir(parents=True, exist_ok=True)
 
         return JsonResponse(_empresa_superadmin_a_dict(empresa), status=201)
 

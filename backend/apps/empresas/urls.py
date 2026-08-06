@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import (
     ConfiguracionLandingView,
+    ImagenEmpresaUploadView,
     LandingPublicaView,
     LicenciaAccionView,
     CuentaPropietarioView,
@@ -13,6 +14,7 @@ from .views import (
 
 urlpatterns = [
     path('configuracion/landing/', ConfiguracionLandingView.as_view(), name='configuracion-landing'),
+    path('configuracion/imagenes/', ImagenEmpresaUploadView.as_view(), name='imagenes-empresa'),
     path('superadmin/', SuperAdminEmpresaListCreateView.as_view(), name='superadmin-empresas'),
     path('superadmin/planes/', PlanLicenciaListView.as_view(), name='superadmin-planes'),
     path('superadmin/licencias/<int:pk>/<str:accion>/', LicenciaAccionView.as_view(), name='licencia-accion'),

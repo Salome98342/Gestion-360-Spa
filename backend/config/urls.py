@@ -15,6 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import include, path
 
 urlpatterns = [
@@ -23,5 +25,9 @@ urlpatterns = [
     path('api/ventas/', include('apps.ventas.urls')),
     path('api/servicios/', include('apps.servicios.urls')),
     path('api/empresas/', include('apps.empresas.urls')),
-    
 ]
+
+# En desarrollo Django entrega los archivos directamente. En producci\u00f3n esta
+# ruta debe ser atendida por el servidor web (Nginx, Caddy, etc.).
+if settings.DEBUG:
+    urlpatterns += static(settings.IMAGES_URL, document_root=settings.IMAGES_ROOT)

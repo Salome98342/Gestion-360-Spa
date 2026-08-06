@@ -37,6 +37,17 @@ export const cerrarSesion = () => api(`${USERS_ROUTE}/logout/`, { method: 'POST'
 export const sesionActual = () => api(`${USERS_ROUTE}/me/`)
 export const configuracionLanding = () => api(`${COMPANIES_ROUTE}/configuracion/landing/`)
 export const guardarConfiguracionLanding = (configuracion) => api(`${COMPANIES_ROUTE}/configuracion/landing/`, { method: 'PATCH', body: configuracion, csrf: true })
+export async function subirImagen(imagen) {
+  if (!csrfToken()) await fetch(`${API_BASE_URL}${USERS_ROUTE}/csrf/`, { credentials: 'include' })
+  const datos = new FormData()
+  datos.append('imagen', imagen)
+  const response = await fetch(`${API_BASE_URL}${COMPANIES_ROUTE}/configuracion/imagenes/`, {
+    method: 'POST', credentials: 'include', headers: csrfToken() ? { 'X-CSRFToken': csrfToken() } : {}, body: datos,
+  })
+  const payload = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(payload.error || `Error ${response.status}`)
+  return payload
+}
 
 // ── Servicios (panel del dueño) ─────────────────────────────────────────────
 export const listarServicios = () => api(`${SERVICES_ROUTE}/`)

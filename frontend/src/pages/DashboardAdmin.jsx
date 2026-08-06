@@ -1,9 +1,11 @@
-﻿﻿import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import imageCompression from 'browser-image-compression'
 import './DashboardAdmin.css'
 import {
   configuracionLanding,
   guardarConfiguracionLanding,
+  subirImagen,
   iniciarSesion,
   sesionActual,
   cerrarSesion,
@@ -49,6 +51,7 @@ export default function DashboardAdmin() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState('')
   const [loading, setLoading] = useState(true)
 
   // ── Servicios ──────────────────────────────────────────────
@@ -158,6 +161,37 @@ export default function DashboardAdmin() {
   const update = (event) => {
     const { name, type, value, checked } = event.target
     setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value }))
+  }
+
+  async function uploadImage(event, field, multiple = false) {
+    const archivos = Array.from(event.target.files || [])
+    if (!archivos.length) return
+    setError('')
+    setMessage('')
+    setUploading(field)
+    try {
+      const opciones = { maxSizeMB: 1, maxWidthOrHeight: 1024, useWebWorker: true, fileType: 'image/webp' }
+      const urls = []
+      for (const archivo of archivos) {
+        if (!archivo.type.startsWith('image/')) throw new Error('Selecciona solamente archivos de imagen.')
+        const optimizada = await imageCompression(archivo, opciones)
+        const { url } = await subirImagen(optimizada)
+        urls.push(url)
+      }
+      setForm((current) => multiple
+        ? { ...current, galeria_urls: [...(current.galeria_urls || []), ...urls] }
+        : { ...current, [field]: urls[0] })
+      setMessage(`${urls.length > 1 ? 'Las imágenes se optimizaron y cargaron' : 'La imagen se optimizó y cargó'}. Guarda los cambios para publicarlos.`)
+    } catch (err) {
+      setError(err.message || 'No fue posible optimizar o cargar la imagen.')
+    } finally {
+      event.target.value = ''
+      setUploading('')
+    }
+  }
+
+  function removeGalleryImage(url) {
+    setForm((current) => ({ ...current, galeria_urls: (current.galeria_urls || []).filter((item) => item !== url) }))
   }
 
   async function authenticate(event) {
@@ -301,8 +335,6 @@ export default function DashboardAdmin() {
       setProductoSaving(false)
     }
   }
-
-  const galleryValue = (form.galeria_urls || []).join('\n')
 
   const overviewStats = useMemo(() => {
     const servicesCount = servicios.filter((item) => item.activo).length
@@ -483,9 +515,12 @@ export default function DashboardAdmin() {
                   WhatsApp
                   <input name="whatsapp" value={form.whatsapp} onChange={update} />
                 </label>
-                <label>
-                  Logo (URL)
-                  <input name="logo_url" value={form.logo_url} onChange={update} placeholder="https://..." />
+                <label className="image-upload-field">
+                  Logo
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => uploadImage(event, 'logo_url')} disabled={uploading === 'logo_url'} />
+                  <small>Se optimiza automáticamente a máximo 1 MB y 1024 px.</small>
+                  {uploading === 'logo_url' && <span className="image-upload-status">Optimizando y cargando...</span>}
+                  {form.logo_url && <img className="image-upload-preview logo" src={form.logo_url} alt="Vista previa del logo" />}
                 </label>
                 <label>
                   Color principal
@@ -509,9 +544,12 @@ export default function DashboardAdmin() {
                   Subtítulo
                   <textarea name="subtitulo_hero" value={form.subtitulo_hero} onChange={update} />
                 </label>
-                <label className="full">
-                  Imagen de portada (URL)
-                  <input name="imagen_hero_url" value={form.imagen_hero_url} onChange={update} placeholder="https://..." />
+                <label className="full image-upload-field">
+                  Imagen de portada
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => uploadImage(event, 'imagen_hero_url')} disabled={uploading === 'imagen_hero_url'} />
+                  <small>Se optimiza automáticamente antes de subirla.</small>
+                  {uploading === 'imagen_hero_url' && <span className="image-upload-status">Optimizando y cargando...</span>}
+                  {form.imagen_hero_url && <img className="image-upload-preview hero" src={form.imagen_hero_url} alt="Vista previa de portada" />}
                 </label>
                 <label className="full">
                   Texto del footer
@@ -544,19 +582,15 @@ export default function DashboardAdmin() {
 
             <section>
               <h2>Galería</h2>
-              <label className="full">
-                Una URL por línea
-                <textarea
-                  name="galeria_urls"
-                  value={galleryValue}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      galeria_urls: event.target.value.split('\n').map((url) => url.trim()).filter(Boolean),
-                    }))
-                  }
-                />
+              <label className="full image-upload-field">
+                Imágenes de la galería
+                <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => uploadImage(event, 'galeria_urls', true)} disabled={uploading === 'galeria_urls'} />
+                <small>Puedes seleccionar varias imágenes; cada una se comprime antes de cargarse.</small>
+                {uploading === 'galeria_urls' && <span className="image-upload-status">Optimizando y cargando imágenes...</span>}
               </label>
+              {(form.galeria_urls || []).length > 0 && <div className="gallery-upload-preview">
+                {form.galeria_urls.map((url) => <div key={url}><img src={url} alt="Imagen de galería" /><button type="button" onClick={() => removeGalleryImage(url)} aria-label="Quitar imagen">×</button></div>)}
+              </div>}
             </section>
 
             <div className="form-actions">

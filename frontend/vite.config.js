@@ -13,6 +13,12 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_BACKEND_ORIGIN || 'http://127.0.0.1:8000',
           changeOrigin: true,
         },
+        // Las URLs de las imágenes se guardan como /images/<empresa>/archivo.
+        // En desarrollo deben pasar por Django, igual que las peticiones API.
+        '/images': {
+          target: env.VITE_BACKEND_ORIGIN || 'http://127.0.0.1:8000',
+          changeOrigin: true,
+        },
       },
     },
   }
