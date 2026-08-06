@@ -149,6 +149,29 @@
   .superadmin-aside {
     width: 100%;
   }
+  .superadmin-brand {
+    padding: 1rem 1.25rem;
+  }
+  .superadmin-brand-heading,
+  .superadmin-footer {
+    display: none;
+  }
+  .superadmin-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+  .superadmin-link {
+    flex: 0 0 auto;
+    padding: 0.75rem 0.9rem;
+  }
+  .superadmin-main-content {
+    padding: 1rem;
+  }
+  .superadmin-header {
+    padding: 1.25rem 1rem;
+  }
 }
 
 /* ── Pantalla de autenticación del SuperAdmin ─────────────────────────── */

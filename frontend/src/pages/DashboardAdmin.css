@@ -65,6 +65,57 @@
   font-weight: 400;
 }
 
+.brand-color-control {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.brand-color-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.4rem;
+  padding: 0.45rem;
+  border: 1px solid #d1d5db;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.admin-card input.brand-color-swatch {
+  width: 3rem;
+  min-width: 3rem;
+  height: 2.4rem;
+  padding: 0.15rem;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.admin-card input.brand-color-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.admin-card input.brand-color-swatch::-webkit-color-swatch {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 8px;
+}
+
+.admin-card input.brand-color-code {
+  min-width: 0;
+  padding: 0.65rem 0.45rem;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.admin-card input.brand-color-code:focus {
+  box-shadow: none;
+}
+
 .image-upload-status {
   color: #b45309;
   font-size: 0.9rem;
@@ -539,6 +590,24 @@
 
 .admin-action-button-danger:hover {
   background: #fee2e2;
+}
+
+.whatsapp-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #15803d;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.whatsapp-confirm:hover {
+  background: #dcfce7;
+  color: #166534;
 }
 
 .table-wrapper {

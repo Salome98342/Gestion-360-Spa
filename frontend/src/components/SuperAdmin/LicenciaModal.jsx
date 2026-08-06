@@ -70,11 +70,16 @@ export default function LicenciaModal({
                                 >
                                     <option value="">Sin plan / Plan predeterminado</option>
                                     {plans.length > 0 ? (
-                                        plans.map((plan) => (
-                                            <option key={plan.id} value={plan.id}>
-                                                {plan.nombre} {plan.precio_mensual ? `- ${plan.precio_mensual}` : ''}
-                                            </option>
-                                        ))
+                                        plans.map((plan) => {
+                                            const dur = Number(plan.duracion_meses) > 0
+                                                ? `${plan.duracion_meses} ${plan.duracion_meses === 1 ? 'mes' : 'meses'}`
+                                                : Number(plan.duracion_dias) > 0 ? `${plan.duracion_dias} días` : ''
+                                            return (
+                                                <option key={plan.id} value={plan.id}>
+                                                    {plan.nombre}{plan.precio_mensual ? ` - ${plan.precio_mensual}` : ''}{dur ? ` (${dur})` : ''}
+                                                </option>
+                                            )
+                                        })
                                     ) : (
                                         <option value="">No se encontraron planes</option>
                                     )}
@@ -90,6 +95,7 @@ export default function LicenciaModal({
                                     required
                                     className="licencia-modal-field"
                                 />
+                                <p className="licencia-modal-info">Se calcula automáticamente según el plan elegido.</p>
                             </div>
                         </div>
 

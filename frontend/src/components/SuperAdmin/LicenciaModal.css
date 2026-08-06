@@ -206,3 +206,28 @@
     transform: translateY(0);
   }
 }
+
+@media (max-width: 560px) {
+  .licencia-modal-overlay {
+    padding: 0.75rem;
+    align-items: end;
+  }
+  .licencia-modal-dialog {
+    max-height: calc(100vh - 1.5rem);
+    overflow-y: auto;
+    border-radius: 22px;
+  }
+  .licencia-modal-header,
+  .licencia-modal-body {
+    padding: 1.2rem;
+  }
+  .licencia-modal-grid {
+    grid-template-columns: 1fr;
+  }
+  .licencia-modal-actions {
+    flex-direction: column-reverse;
+  }
+  .licencia-modal-button {
+    width: 100%;
+  }
+}

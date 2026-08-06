@@ -66,6 +66,8 @@ def _landing_a_dict(empresa, landing):
             "nombre": empresa.nombre, "slug": empresa.slug, "telefono": empresa.telefono, "direccion": empresa.direccion,
             "whatsapp": empresa.whatsapp, "logo_url": empresa.logo_url,
             "color_primario": empresa.color_primario, "color_secundario": empresa.color_secundario,
+            "color_fondo": empresa.color_fondo, "color_superficie": empresa.color_superficie,
+            "color_texto": empresa.color_texto, "color_texto_boton": empresa.color_texto_boton,
         },
         "landing": {
             "titulo_hero": landing.titulo_hero, "subtitulo_hero": landing.subtitulo_hero,
@@ -122,7 +124,10 @@ class ConfiguracionLandingView(View):
 
         empresa = request.user.empresa
         landing, _ = ConfiguracionLanding.objects.get_or_create(empresa=empresa)
-        empresa_fields = {"nombre", "telefono", "whatsapp", "logo_url", "color_primario", "color_secundario"}
+        empresa_fields = {
+            "nombre", "telefono", "whatsapp", "logo_url", "color_primario", "color_secundario",
+            "color_fondo", "color_superficie", "color_texto", "color_texto_boton",
+        }
         landing_fields = {
             "titulo_hero", "subtitulo_hero", "imagen_hero_url", "texto_footer",
             "instagram_url", "facebook_url", "tiktok_url", "mostrar_precios", "galeria_urls",
@@ -351,6 +356,8 @@ def _plan_a_dict(plan):
         "nombre": plan.nombre,
         "descripcion": plan.descripcion,
         "precio_mensual": str(plan.precio_mensual),
+        "duracion_meses": plan.duracion_meses,
+        "duracion_dias": plan.duracion_dias,
         "max_citas_mes": plan.max_citas_mes,
         "max_servicios": plan.max_servicios,
         "max_usuarios_admin": plan.max_usuarios_admin,
@@ -393,12 +400,6 @@ class SuperAdminEmpresaListCreateView(LoginRequiredMixin, UserPassesTestMixin, V
         if Usuario.objects.filter(username=username).exists():
             return JsonResponse({"error": "Ese usuario ya está en uso."}, status=400)
 
-        fecha_vencimiento = data.get("fecha_vencimiento")
-        try:
-            fecha = date.fromisoformat(fecha_vencimiento)
-        except (TypeError, ValueError):
-            return JsonResponse({"error": "fecha_vencimiento debe tener formato YYYY-MM-DD."}, status=400)
-
         plan_id = data.get("plan_id")
         plan = None
         if plan_id is not None and plan_id != "":
@@ -406,6 +407,21 @@ class SuperAdminEmpresaListCreateView(LoginRequiredMixin, UserPassesTestMixin, V
                 plan = PlanLicencia.objects.get(id=int(plan_id), activo=True)
             except (ValueError, PlanLicencia.DoesNotExist):
                 return JsonResponse({"error": "Plan de licencia inválido."}, status=400)
+
+        fecha_vencimiento = data.get("fecha_vencimiento")
+        # Si no se envía vencimiento pero el plan define una duración, se
+        # calcula automáticamente a partir de hoy (meses o días del plan).
+        if plan and (plan.duracion_meses or plan.duracion_dias):
+            hoy = timezone.localdate()
+            if plan.duracion_meses:
+                fecha = sumar_meses(hoy, plan.duracion_meses)
+            else:
+                fecha = hoy + timedelta(days=plan.duracion_dias)
+        else:
+            try:
+                fecha = date.fromisoformat(fecha_vencimiento)
+            except (TypeError, ValueError):
+                return JsonResponse({"error": "fecha_vencimiento debe tener formato YYYY-MM-DD."}, status=400)
 
         fecha_vencimiento_dt = timezone.make_aware(datetime.combine(fecha, time(23, 59, 59)))
         if fecha_vencimiento_dt <= timezone.now():

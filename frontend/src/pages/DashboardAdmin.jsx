@@ -13,7 +13,6 @@ import {
   crearServicio,
   actualizarServicio,
   eliminarServicio,
-  listarVentas,
   listarCitasEmpresa,
   listarProductos,
   crearProducto,
@@ -26,6 +25,10 @@ const initialForm = {
   logo_url: '',
   color_primario: '#db2777',
   color_secundario: '#fff0f5',
+  color_fondo: '#f8fafc',
+  color_superficie: '#ffffff',
+  color_texto: '#111827',
+  color_texto_boton: '#ffffff',
   titulo_hero: '',
   subtitulo_hero: '',
   imagen_hero_url: '',
@@ -41,6 +44,18 @@ const emptyServicio = { nombre: '', descripcion: '', precio: '', duracion_minuto
 const emptyProducto = { nombre: '', codigo_barras: '', descripcion: '', precio_venta: '', costo: '0', stock_actual: 0 }
 
 const formatMoney = (value) => Number(value || 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })
+const colorValido = (value, fallback) => /^#[0-9a-f]{6}$/i.test(value || '') ? value : fallback
+
+function ColorControl({ name, label, value, onChange, fallback }) {
+  const color = colorValido(value, fallback)
+  return <label className="brand-color-control">
+    <span>{label}</span>
+    <span className="brand-color-inputs">
+      <input className="brand-color-swatch" name={name} type="color" value={color} onChange={onChange} aria-label={`Elegir ${label.toLowerCase()}`} />
+      <input className="brand-color-code" name={name} value={value || color} onChange={onChange} maxLength="7" placeholder="#000000" aria-label={`Código hexadecimal de ${label.toLowerCase()}`} />
+    </span>
+  </label>
+}
 
 export default function DashboardAdmin() {
   const { slug } = useParams()
@@ -67,10 +82,6 @@ export default function DashboardAdmin() {
   const [productoForm, setProductoForm] = useState(emptyProducto)
   const [productoError, setProductoError] = useState('')
   const [productoSaving, setProductoSaving] = useState(false)
-
-  // ── Ventas ─────────────────────────────────────────────────
-  const [ventas, setVentas] = useState([])
-  const [ventasError, setVentasError] = useState('')
 
   // ── Citas recibidas desde la landing ───────────────────────
   const [citas, setCitas] = useState([])
@@ -125,16 +136,6 @@ export default function DashboardAdmin() {
     }
   }
 
-  async function loadVentas() {
-    setVentasError('')
-    try {
-      const data = await listarVentas()
-      setVentas(data.ventas || [])
-    } catch (err) {
-      setVentasError(err.message)
-    }
-  }
-
   async function loadCitas() {
     setCitasError('')
     try {
@@ -152,12 +153,11 @@ export default function DashboardAdmin() {
     init()
   }, [slug])
 
-  // Cargar servicios, productos y ventas al iniciar sesión para que las
-  // estadísticas del panel no aparezcan en 0.
+  // Cargar servicios y reservas al iniciar sesión para que el resumen se actualice.
   useEffect(() => {
     async function refreshData() {
       if (!user) return
-      await Promise.all([loadServicios(), loadVentas(), loadCitas()])
+      await Promise.all([loadServicios(), loadCitas()])
     }
     refreshData()
   }, [user])
@@ -167,7 +167,6 @@ export default function DashboardAdmin() {
     async function refreshOnTab() {
       if (!user) return
       if (tab === 'servicios') await loadServicios()
-      if (tab === 'ventas') await loadVentas()
       if (tab === 'citas') await loadCitas()
     }
     refreshOnTab()
@@ -209,6 +208,23 @@ export default function DashboardAdmin() {
     setForm((current) => ({ ...current, galeria_urls: (current.galeria_urls || []).filter((item) => item !== url) }))
   }
 
+  function confirmarPorWhatsApp(cita) {
+    if (!form.whatsapp?.trim()) {
+      setCitasError('Configura el número de WhatsApp de tu negocio en “Mi landing” antes de enviar confirmaciones.')
+      return
+    }
+    let telefono = String(cita.telefono || '').replace(/\D/g, '')
+    // Los teléfonos colombianos de diez dígitos se convierten al formato internacional de WhatsApp.
+    if (telefono.length === 10 && telefono.startsWith('3')) telefono = `57${telefono}`
+    if (telefono.length < 10) {
+      setCitasError('La reserva no tiene un número de WhatsApp válido.')
+      return
+    }
+    const fecha = new Date(`${cita.fecha}T00:00:00`).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })
+    const mensaje = `Hola ${cita.cliente}. Te escribimos de ${form.nombre} para confirmar tu cita.\n\nServicio: ${cita.servicio}\nFecha: ${fecha}\nHora: ${cita.hora}\nDirección: ${form.direccion || 'la dirección registrada del negocio'}\n\n¡Te esperamos!`
+    window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, '_blank', 'noopener,noreferrer')
+  }
+
   async function authenticate(event) {
     event.preventDefault()
     setError('')
@@ -222,6 +238,11 @@ export default function DashboardAdmin() {
 
   async function saveConfig(event) {
     event.preventDefault()
+    const coloresMarca = ['color_primario', 'color_secundario', 'color_fondo', 'color_superficie', 'color_texto', 'color_texto_boton']
+    if (coloresMarca.some((campo) => !/^#[0-9a-f]{6}$/i.test(form[campo] || ''))) {
+      setError('Usa un color hexadecimal válido, por ejemplo #DB2777.')
+      return
+    }
     setSaving(true)
     setError('')
     setMessage('')
@@ -254,7 +275,6 @@ export default function DashboardAdmin() {
     setForm(initialForm)
     setServicios([])
     setProductos([])
-    setVentas([])
     setTab('resumen')
   }
 
@@ -354,8 +374,6 @@ export default function DashboardAdmin() {
   const overviewStats = useMemo(() => {
     const servicesCount = servicios.filter((item) => item.activo).length
     const productsCount = productos.filter((item) => item.activo).length
-    const salesCount = ventas.length
-
     return [
       {
         label: 'Servicios activos',
@@ -369,14 +387,8 @@ export default function DashboardAdmin() {
         icon: 'fa-boxes-stacked',
         accent: 'accent-violet',
       },
-      {
-        label: 'Ventas registradas',
-        value: salesCount,
-        icon: 'fa-receipt',
-        accent: 'accent-sky',
-      },
     ]
-  }, [productos, servicios, ventas])
+  }, [productos, servicios])
 
   const previewTheme = {
     '--preview-primary': form.color_primario || '#db2777',
@@ -435,7 +447,6 @@ export default function DashboardAdmin() {
     { key: 'landing', label: 'Mi landing', icon: 'fa-wand-magic-sparkles' },
     { key: 'citas', label: 'Reservas', icon: 'fa-calendar-check' },
     { key: 'servicios', label: 'Servicios', icon: 'fa-hand-sparkles' },
-    { key: 'ventas', label: 'Ventas', icon: 'fa-receipt' },
   ]
 
   return (
@@ -537,14 +548,12 @@ export default function DashboardAdmin() {
                   {uploading === 'logo_url' && <span className="image-upload-status">Optimizando y cargando...</span>}
                   {form.logo_url && <img className="image-upload-preview logo" src={form.logo_url} alt="Vista previa del logo" />}
                 </label>
-                <label>
-                  Color principal
-                  <input name="color_primario" type="color" value={form.color_primario} onChange={update} />
-                </label>
-                <label>
-                  Color secundario
-                  <input name="color_secundario" type="color" value={form.color_secundario} onChange={update} />
-                </label>
+                <ColorControl name="color_primario" label="Color principal" value={form.color_primario} onChange={update} fallback="#db2777" />
+                <ColorControl name="color_secundario" label="Color complementario" value={form.color_secundario} onChange={update} fallback="#fff0f5" />
+                <ColorControl name="color_fondo" label="Fondo general" value={form.color_fondo} onChange={update} fallback="#f8fafc" />
+                <ColorControl name="color_superficie" label="Tarjetas y navegación" value={form.color_superficie} onChange={update} fallback="#ffffff" />
+                <ColorControl name="color_texto" label="Texto principal" value={form.color_texto} onChange={update} fallback="#111827" />
+                <ColorControl name="color_texto_boton" label="Texto de botones" value={form.color_texto_boton} onChange={update} fallback="#ffffff" />
               </div>
             </section>
 
@@ -816,48 +825,12 @@ export default function DashboardAdmin() {
               <button type="button" className="tenant-button secondary" onClick={loadCitas}>Actualizar</button>
             </div>
             {citasError && <div className="notice error">{citasError}</div>}
-            {citas.length === 0 ? <p className="tenant-muted">Aún no hay reservas registradas.</p> : <div className="table-wrapper"><table className="admin-table"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Contacto</th><th>Estado</th></tr></thead><tbody>
-              {citas.map((cita) => <tr key={cita.id}><td><div className="table-cell-title">{cita.cliente}</div>{cita.notas && <div className="table-note">{cita.notas}</div>}</td><td>{cita.servicio}<div className="table-note">{cita.duracion_minutos} min · {formatMoney(cita.precio)}</div></td><td>{new Date(`${cita.fecha}T00:00:00`).toLocaleDateString('es-CO')}<div className="table-note">{cita.hora}</div></td><td>{cita.telefono}{cita.email && <div className="table-note">{cita.email}</div>}</td><td><span className={`status-pill ${cita.estado === 'CANCELADA' ? 'inactive' : 'active'}`}>{cita.estado}</span></td></tr>)}
+            {citas.length === 0 ? <p className="tenant-muted">Aún no hay reservas registradas.</p> : <div className="table-wrapper"><table className="admin-table"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Contacto</th><th>Estado</th><th>Confirmación</th></tr></thead><tbody>
+              {citas.map((cita) => <tr key={cita.id}><td><div className="table-cell-title">{cita.cliente}</div>{cita.notas && <div className="table-note">{cita.notas}</div>}</td><td>{cita.servicio}<div className="table-note">{cita.duracion_minutos} min · {formatMoney(cita.precio)}</div></td><td>{new Date(`${cita.fecha}T00:00:00`).toLocaleDateString('es-CO')}<div className="table-note">{cita.hora}</div></td><td>{cita.telefono}{cita.email && <div className="table-note">{cita.email}</div>}</td><td><span className={`status-pill ${cita.estado === 'CANCELADA' ? 'inactive' : 'active'}`}>{cita.estado}</span></td><td><button type="button" className="whatsapp-confirm" onClick={() => confirmarPorWhatsApp(cita)} title="Abrir mensaje de confirmación en WhatsApp"><i className="fab fa-whatsapp"></i> Confirmar</button></td></tr>)}
             </tbody></table></div>}
           </section>
         )}
 
-        {tab === 'ventas' && (
-          <div className="admin-card">
-            <h2 className="section-title">Historial de Ventas</h2>
-            {ventasError && <div className="notice error">{ventasError}</div>}
-            {ventas.length === 0 ? (
-              <p className="tenant-muted">Aún no hay ventas registradas.</p>
-            ) : (
-              <div className="table-wrapper">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Fecha</th>
-                      <th>Total</th>
-                      <th>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ventas.map((venta) => (
-                      <tr key={venta.id}>
-                        <td>#{venta.id}</td>
-                        <td>{new Date(venta.fecha_emision).toLocaleString('es-CO')}</td>
-                        <td>{formatMoney(venta.total)}</td>
-                        <td>
-                          <span className={`status-pill ${venta.estado === 'COMPLETADA' ? 'active' : venta.estado === 'PENDIENTE' ? 'warning' : 'inactive'}`}>
-                            {venta.estado}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
 </div>
     </main>
   )

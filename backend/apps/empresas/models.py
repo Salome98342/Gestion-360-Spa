@@ -47,6 +47,10 @@ class Empresa(models.Model):
     logo_url = models.TextField(null=True, blank=True)
     color_primario = models.TextField(default="#db2777")
     color_secundario = models.TextField(default="#fff0f5")
+    color_fondo = models.TextField(default="#f8fafc")
+    color_superficie = models.TextField(default="#ffffff")
+    color_texto = models.TextField(default="#111827")
+    color_texto_boton = models.TextField(default="#ffffff")
 
     activa = models.BooleanField(default=True)
     creada_en = models.DateTimeField(auto_now_add=True)
@@ -73,6 +77,8 @@ class PlanLicencia(models.Model):
     nombre = models.TextField()
     descripcion = models.TextField(null=True, blank=True)
     precio_mensual = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    duracion_meses = models.PositiveSmallIntegerField(default=0)
+    duracion_dias = models.PositiveSmallIntegerField(default=0)
 
     max_citas_mes = models.IntegerField(null=True, blank=True)
     max_servicios = models.IntegerField(null=True, blank=True)

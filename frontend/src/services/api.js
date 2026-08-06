@@ -19,6 +19,8 @@ export async function api(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     credentials: 'include',
+    // La landing debe reflejar de inmediato los cambios de marca recién guardados.
+    cache: ['GET', 'HEAD'].includes(method.toUpperCase()) ? 'no-store' : 'default',
     headers: {
       ...(body ? { 'Content-Type': 'application/json' } : {}),
       ...(requireCsrf && csrfToken() ? { 'X-CSRFToken': csrfToken() } : {}),

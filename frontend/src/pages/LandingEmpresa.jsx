@@ -24,7 +24,18 @@ export default function LandingEmpresa() {
   const gallery = (landing.galeria_urls || []).filter(Boolean)
   const title = landing.titulo_hero || empresa.nombre || ''
   const subtitle = landing.subtitulo_hero || ''
-  const theme = { '--primary': empresa.color_primario || '#db2777', '--secondary': empresa.color_secundario || '#fff0f5' }
+  const primary = empresa.color_primario || '#db2777'
+  const secondary = empresa.color_secundario || '#fff0f5'
+  const theme = {
+    '--tenant-brand-primary': primary,
+    '--tenant-brand-secondary': secondary,
+    '--tenant-brand-page': empresa.color_fondo || '#f8fafc',
+    '--tenant-brand-surface': empresa.color_superficie || '#ffffff',
+    '--tenant-brand-text': empresa.color_texto || '#111827',
+    '--tenant-brand-button-text': empresa.color_texto_boton || '#ffffff',
+    '--primary': primary,
+    '--secondary': secondary,
+  }
 
   return (
     <div className="tenant tenant-landing" style={theme}>

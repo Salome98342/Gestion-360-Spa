@@ -1,8 +1,14 @@
 .tenant-landing {
-  --primary: #db2777;
-  --secondary: #fff0f5;
+  /* Variables exclusivas de la empresa: se reciben desde la configuración. */
+  --primary: var(--tenant-brand-primary, #db2777) !important;
+  --secondary: var(--tenant-brand-secondary, #fff0f5) !important;
+  --tenant-page: var(--tenant-brand-page, #f8fafc);
+  --tenant-surface: var(--tenant-brand-surface, #ffffff);
+  --tenant-text: var(--tenant-brand-text, #111827);
+  --tenant-button-text: var(--tenant-brand-button-text, #ffffff);
   min-height: 100vh;
-  background: linear-gradient(180deg, #fff0f5 0%, #ffffff 100%);
+  background: linear-gradient(180deg, var(--secondary) 0%, var(--tenant-page) 100%);
+  color: var(--tenant-text);
 }
 
 .tenant-landing .tenant-nav {
@@ -14,7 +20,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in srgb, var(--tenant-surface) 95%, transparent);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(226, 232, 240, 0.9);
 }
@@ -26,7 +32,7 @@
   font-weight: 800;
   font-size: 1.15rem;
   text-decoration: none;
-  color: #111827;
+  color: var(--tenant-text);
 }
 
 .tenant-landing .tenant-logo {
@@ -34,7 +40,7 @@
   height: 46px;
   border-radius: 18px;
   background: var(--secondary);
-  box-shadow: 0 16px 48px rgba(219, 39, 119, 0.12);
+  box-shadow: 0 16px 48px color-mix(in srgb, var(--primary) 18%, transparent);
   object-fit: cover;
 }
 
@@ -53,7 +59,7 @@
 }
 
 .tenant-landing .tenant-nav-links a {
-  color: #475569;
+  color: color-mix(in srgb, var(--tenant-text) 78%, var(--tenant-surface));
   transition: color 0.25s ease;
 }
 
@@ -62,7 +68,7 @@
 }
 
 .tenant-landing .tenant-hero-wrap {
-  background: linear-gradient(115deg, var(--secondary), #ffffff 62%);
+  background: linear-gradient(115deg, var(--secondary), var(--tenant-surface) 62%);
 }
 
 .tenant-landing .tenant-hero {
@@ -82,12 +88,12 @@
   margin: 0;
   font-size: clamp(2.8rem, 4vw, 4.5rem);
   line-height: 0.98;
-  color: #111827;
+  color: var(--tenant-text);
 }
 
 .tenant-landing .tenant-copy {
   margin-top: 1.4rem;
-  color: #4d5765;
+  color: color-mix(in srgb, var(--tenant-text) 72%, var(--tenant-surface));
   line-height: 1.8;
   max-width: 610px;
 }
@@ -97,6 +103,19 @@
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: 2rem;
+}
+
+.tenant-landing .tenant-button {
+  color: var(--tenant-button-text);
+}
+
+.tenant-landing .tenant-nav-links .tenant-button {
+  color: var(--tenant-button-text);
+}
+
+.tenant-landing .tenant-button.secondary {
+  background: var(--tenant-surface);
+  color: var(--primary);
 }
 
 .tenant-landing .tenant-hero-media {
@@ -138,11 +157,11 @@
 .tenant-landing .tenant-section-header h2 {
   margin: 0;
   font-size: clamp(2rem, 2.5vw, 2.5rem);
-  color: #111827;
+  color: var(--tenant-text);
 }
 
 .tenant-landing .tenant-services {
-  background: #f9fafb;
+  background: color-mix(in srgb, var(--tenant-page) 88%, var(--tenant-surface));
   padding: 3rem 0;
 }
 
@@ -153,7 +172,7 @@
 }
 
 .tenant-landing .tenant-card {
-  background: #ffffff;
+  background: var(--tenant-surface);
   border: 1px solid #e8edf4;
   border-radius: 28px;
   padding: 2rem;
@@ -179,7 +198,7 @@
 .tenant-card-heading h3 {
   margin: 0;
   font-size: 1.15rem;
-  color: #111827;
+  color: var(--tenant-text);
 }
 
 .tenant-service-title {
@@ -199,7 +218,7 @@
 }
 
 .tenant-card-badge {
-  background: rgba(219, 39, 119, 0.1);
+  background: color-mix(in srgb, var(--primary) 10%, var(--tenant-surface));
   color: var(--primary);
   font-size: 0.85rem;
   font-weight: 700;
@@ -208,7 +227,7 @@
 }
 
 .tenant-card-copy {
-  color: #64748b;
+  color: color-mix(in srgb, var(--tenant-text) 62%, var(--tenant-surface));
   flex: 1;
   line-height: 1.7;
 }
@@ -217,7 +236,7 @@
   margin-top: auto;
   font-size: 1.2rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--tenant-text);
 }
 
 .tenant-gallery {
@@ -249,8 +268,8 @@
 }
 
 .tenant-footer {
-  background: #0f172a;
-  color: #dbeafe;
+  background: var(--tenant-text);
+  color: var(--tenant-surface);
   padding: 3rem 2rem;
   display: flex;
   gap: 2rem;
@@ -263,14 +282,14 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-size: 0.7rem;
-  color: #f8fafc;
+  color: var(--tenant-surface);
   margin-bottom: 0.75rem;
 }
 
 .tenant-footer-info p,
 .tenant-footer p {
   margin: 0.65rem 0 0;
-  color: #cbd5e1;
+  color: color-mix(in srgb, var(--tenant-surface) 80%, var(--tenant-text));
   line-height: 1.8;
 }
 
@@ -309,18 +328,35 @@
   .tenant-landing .tenant-gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .tenant-landing .tenant-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
   .tenant-landing .tenant-nav {
     flex-direction: column;
     align-items: stretch;
+    height: auto;
   }
   .tenant-landing .tenant-nav-links {
     justify-content: center;
+    gap: 0.65rem;
+    font-size: 0.85rem;
+  }
+  .tenant-landing .tenant-nav-links .tenant-button {
+    padding: 0.7rem 0.9rem;
+  }
+  .tenant-landing .tenant-hero {
+    min-height: auto;
+    gap: 2rem;
+    padding: 2rem 0 2.5rem;
+  }
+  .tenant-landing h1 {
+    font-size: clamp(2.4rem, 13vw, 3.2rem);
   }
   .tenant-landing .tenant-hero-image {
-    height: 320px;
+    height: 280px;
   }
   .tenant-landing .tenant-hero-note {
     right: 0.75rem;
@@ -328,6 +364,12 @@
   }
   .tenant-landing .tenant-card {
     padding: 1.5rem;
+  }
+  .tenant-landing .tenant-grid {
+    grid-template-columns: 1fr;
+  }
+  .tenant-landing .tenant-actions .tenant-button {
+    flex: 1 1 100%;
   }
   .tenant-landing .tenant-footer {
     padding: 2rem 1.25rem;

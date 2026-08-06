@@ -172,3 +172,20 @@
     padding: 0.85rem;
   }
 }
+
+@media (max-width: 560px) {
+  .empresas-header,
+  .account-created-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .empresas-header .btn-primary {
+    justify-content: center;
+  }
+  .account-created-actions {
+    margin-left: 0;
+  }
+  .manager-help {
+    line-height: 1.6;
+  }
+}

@@ -527,3 +527,35 @@ body {
     padding: 2rem 1.5rem;
   }
 }
+
+@media (max-width: 480px) {
+  .booking-page {
+    width: min(1180px, calc(100% - 20px));
+    margin: 1rem auto 2rem;
+  }
+  .booking-card {
+    padding: 1rem;
+  }
+  .booking-stepper {
+    width: 100%;
+  }
+  .booking-step {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+  .booking-section,
+  .booking-summary-card {
+    padding: 1rem;
+    border-radius: 18px;
+  }
+  .service-option {
+    padding: 0.8rem;
+  }
+  .summary-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .summary-item strong {
+    text-align: left;
+  }
+}

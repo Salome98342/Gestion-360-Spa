@@ -6,11 +6,44 @@ import './EmpresasManager.css'
 
 const initialForm = { nombre: '', slug: '', telefono: '', whatsapp: '', plan_id: '', fecha_vencimiento: '', admin_nombre: '', admin_email: '', admin_username: '', admin_password: '' }
 
+// Suma meses/días a la fecha de hoy y devuelve el vencimiento en formato YYYY-MM-DD.
+function calcularVencimiento(plan) {
+  const hoy = new Date()
+  const fecha = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
+  if (plan && Number(plan.duracion_meses) > 0) {
+    const anio = fecha.getFullYear()
+    const mes = fecha.getMonth() + Number(plan.duracion_meses)
+    fecha.setFullYear(anio + Math.floor(mes / 12), mes % 12, 1)
+    const ultimoDia = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0).getDate()
+    fecha.setDate(Math.min(fecha.getDate(), ultimoDia))
+  } else if (plan && Number(plan.duracion_dias) > 0) {
+    fecha.setDate(fecha.getDate() + Number(plan.duracion_dias))
+  }
+  const y = fecha.getFullYear()
+  const m = String(fecha.getMonth() + 1).padStart(2, '0')
+  const d = String(fecha.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export default function EmpresasManager() {
   const [isModalOpen, setIsModalOpen] = useState(false); const [empresas, setEmpresas] = useState([]); const [planes, setPlanes] = useState([]); const [loading, setLoading] = useState(true); const [submitting, setSubmitting] = useState(false); const [error, setError] = useState(''); const [form, setForm] = useState(initialForm); const [createdAccount, setCreatedAccount] = useState(null); const [selectedCompany, setSelectedCompany] = useState(null)
   const loadData = async () => { setLoading(true); try { const [companies, plansData] = await Promise.all([listarEmpresasSuperAdmin(), listarPlanesLicencia()]); setEmpresas(companies.empresas || []); setPlanes(plansData.planes || []) } catch (err) { setError(err.message) } finally { setLoading(false) } }
   useEffect(() => { loadData() }, [])
-  const handleChange = ({ target: { name, value } }) => setForm((current) => ({ ...current, [name]: value }))
+  const handleChange = ({ target: { name, value } }) => {
+    setForm((current) => {
+      const next = { ...current, [name]: value }
+      // Al elegir una licencia con duración definida, auto-rellenar el vencimiento.
+      if (name === 'plan_id') {
+        const plan = planes.find((item) => String(item.id) === String(value))
+        if (plan && (Number(plan.duracion_meses) > 0 || Number(plan.duracion_dias) > 0)) {
+          next.fecha_vencimiento = calcularVencimiento(plan)
+        } else {
+          next.fecha_vencimiento = ''
+        }
+      }
+      return next
+    })
+  }
   const handleSubmit = async (event) => { event.preventDefault(); setSubmitting(true); setError(''); try { const response = await crearEmpresaSuperAdmin({ ...form, telefono: form.telefono || null, whatsapp: form.whatsapp || null }); setEmpresas((current) => [response, ...current]); setCreatedAccount({ empresa: response.nombre, username: form.admin_username, password: form.admin_password, slug: response.slug }); setForm(initialForm); setIsModalOpen(false) } catch (err) { setError(err.message) } finally { setSubmitting(false) } }
   const refresh = async () => { const data = await listarEmpresasSuperAdmin(); setEmpresas(data.empresas || []) }
   const handleLicense = async (empresa, accion) => { const id = empresa.licencia?.id; if (!id) return setError('Esta empresa no tiene una licencia para administrar.'); let data = {}; if (accion === 'renovar') { const meses = window.prompt(`¿Cuántos meses deseas renovar para ${empresa.nombre}?`, '1'); if (!meses) return; data = { meses: Number(meses) } } else if (!window.confirm(`¿Deseas ${accion === 'activar' ? 'reactivar' : 'suspender'} el servicio de ${empresa.nombre}?`)) return; try { await accionLicencia(id, accion, data); await refresh() } catch (err) { setError(err.message) } }
