@@ -308,9 +308,65 @@
 }
 
 @media (max-width: 760px) { 
-    .admin-page { padding: 2.5rem 1rem 3rem; } 
+    .admin-page { padding: 2rem 0.75rem 3rem; } 
     .admin-card, 
     .admin-card.login-card { padding: 1.5rem; } 
-    .admin-tabs { justify-content: center; } 
     .admin-head { padding: 1.5rem 1.25rem 1.25rem; } 
+    .admin-head-grid { 
+        grid-template-columns: 1fr; 
+        align-items: flex-start; 
+    } 
+    .admin-head-grid .tenant-button { 
+        width: 100%; 
+    } 
+    .admin-tabs { 
+        justify-content: flex-start; 
+        flex-wrap: nowrap; 
+        overflow-x: auto; 
+        gap: 0.6rem; 
+        padding-bottom: 0.35rem; 
+        -webkit-overflow-scrolling: touch; 
+    } 
+    .admin-tabs::-webkit-scrollbar { 
+        height: 0; 
+    } 
+    .admin-tab { 
+        flex: 0 0 auto; 
+        white-space: nowrap; 
+    } 
+    .admin-section-header { 
+        align-items: flex-start; 
+    } 
+}
+
+@media (max-width: 480px) {
+    .admin-page { 
+        padding: 1.5rem 0.5rem 2.5rem; 
+    } 
+    .admin-card, 
+    .admin-card.login-card { 
+        padding: 1.25rem; 
+        border-radius: 22px; 
+    } 
+    .admin-card-inner { 
+        padding: 1.25rem; 
+        border-radius: 18px; 
+    } 
+    .admin-head { 
+        padding: 1.25rem 1rem; 
+        border-radius: 22px; 
+    } 
+    .admin-page-title { 
+        font-size: 1.7rem; 
+    } 
+    .admin-overview-card { 
+        padding: 0.9rem 1rem; 
+    } 
+    .admin-preview-card, 
+    .admin-welcome-card { 
+        padding: 1rem; 
+    } 
+    .whatsapp-confirm { 
+        white-space: nowrap; 
+    } 
 }

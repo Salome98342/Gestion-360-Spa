@@ -166,11 +166,41 @@
     flex: 0 0 auto;
     padding: 0.75rem 0.9rem;
   }
-  .superadmin-main-content {
+.superadmin-main-content {
     padding: 1rem;
   }
   .superadmin-header {
     padding: 1.25rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .superadmin-brand {
+    padding: 0.75rem 1rem;
+  }
+  .superadmin-brand-inner .superadmin-brand-title {
+    font-size: 1.05rem;
+  }
+  .superadmin-nav {
+    padding: 0.6rem 0.75rem;
+    gap: 0.4rem;
+  }
+  .superadmin-link {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9rem;
+    gap: 0.6rem;
+  }
+  .superadmin-main-content {
+    padding: 0.75rem;
+  }
+  .superadmin-header {
+    padding: 1rem 0.75rem;
+  }
+  .superadmin-header-title {
+    font-size: 1.5rem;
+  }
+  .superadmin-auth-card {
+    padding: 1.5rem;
   }
 }
 

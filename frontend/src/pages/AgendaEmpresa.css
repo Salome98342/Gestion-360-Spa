@@ -528,6 +528,33 @@ body {
   }
 }
 
+@media (max-width: 520px) {
+  .booking-stepper {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 0.35rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .booking-stepper::-webkit-scrollbar {
+    height: 0;
+  }
+  .booking-step {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .booking-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+  .booking-section-header .booking-badge {
+    white-space: nowrap;
+  }
+}
+
 @media (max-width: 480px) {
   .booking-page {
     width: min(1180px, calc(100% - 20px));
@@ -536,12 +563,8 @@ body {
   .booking-card {
     padding: 1rem;
   }
-  .booking-stepper {
-    width: 100%;
-  }
-  .booking-step {
-    flex: 1 1 100%;
-    text-align: center;
+  .booking-headline {
+    flex-direction: column;
   }
   .booking-section,
   .booking-summary-card {

@@ -12,6 +12,8 @@ try:
 except ModuleNotFoundError:
     pass
 
+import dj_database_url
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -133,17 +135,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # SQLite pisándolo). Debe existir un único diccionario DATABASES.
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-        'OPTIONS': {
-            'options': '-c search_path=public'
-        },
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+        ssl_require=True,  # Obligatorio para conexiones seguras en la nube como Supabase
+    )
 }
 
 

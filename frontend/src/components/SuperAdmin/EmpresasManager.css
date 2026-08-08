@@ -67,14 +67,30 @@
   color: #0f172a;
 }
 
-.manager-eyebrow { margin: 0 0 .35rem; color: #be185d; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.manager-eyebrow { 
+  margin: 0 0 .35rem; 
+  color: #be185d; 
+  font-size: .75rem; 
+  font-weight: 800; 
+  letter-spacing: .08em; 
+  text-transform: uppercase; 
+}
+
+
 .owner-cell, .plan-cell { display: grid; gap: .25rem; font-size: .9rem; color: #475569; }
+
 .owner-cell { display: flex; align-items: center; gap: .45rem; font-weight: 700; color: #334155; }
+
 .owner-cell i { color: #db2777; font-size: 1.15rem; }.plan-cell strong { color: #334155; }.plan-cell span { color: #64748b; font-size: .8rem; }
+
 .missing-owner { color: #b45309; font-size: .85rem; font-weight: 700; }.action-button:disabled { opacity: .4; cursor: not-allowed; }
+
 .account-created-card { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.2rem; margin-bottom: 1.4rem; border: 1px solid #fbcfe8; border-radius: 20px; background: linear-gradient(110deg, #fff1f7, #fff); }
+
 .account-created-card p { margin: .3rem 0 0; color: #475569; font-size: .9rem; }.account-created-eyebrow { color: #be185d !important; text-transform: uppercase; font-weight: 800; font-size: .7rem !important; letter-spacing: .08em; }
+
 .account-created-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: #db2777; color: #fff; }.account-created-actions { margin-left: auto; display: flex; gap: .5rem; }
+
 .manager-help { margin: 1rem 0 0; color: #64748b; font-size: .8rem; }
 
 .status-pill {
@@ -174,6 +190,10 @@
 }
 
 @media (max-width: 560px) {
+  .empresas-manager {
+    padding: 1.25rem;
+    border-radius: 22px;
+  }
   .empresas-header,
   .account-created-card {
     align-items: stretch;
@@ -181,11 +201,26 @@
   }
   .empresas-header .btn-primary {
     justify-content: center;
+    width: 100%;
   }
   .account-created-actions {
     margin-left: 0;
+    justify-content: flex-end;
   }
   .manager-help {
     line-height: 1.6;
+  }
+}
+
+@media (max-width: 400px) {
+  .empresas-manager {
+    padding: 1rem;
+  }
+  .empresas-table th,
+  .empresas-table td {
+    padding: 0.7rem;
+  }
+  .section-title {
+    font-size: 1.1rem;
   }
 }
