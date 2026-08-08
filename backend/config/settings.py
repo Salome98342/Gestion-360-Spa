@@ -39,13 +39,38 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         'DJANGO_CSRF_TRUSTED_ORIGINS',
-        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,https://gestion-360-spa.onrender.com,http://192.168.1.13:5173',
+        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,https://gestion-360-spa.onrender.com,https://spa360digital.vercel.app,http://192.168.1.13:5173',
+    ).split(',')
+    if origin.strip()
+]
+
+# ── CORS ─────────────────────────────────────────────────────────────────────
+# El frontend (localhost:5173 en desarrollo y spa360digital.vercel.app en
+# producción) llama al backend de forma cross-origin. Sin estas cabeceras el
+# navegador bloquea las respuestas. Permitimos credenciales (cookies) para que
+# la sesión funcione.
+# Requiere django-cors-headers (ver requirements.txt).
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        'DJANGO_CORS_ALLOWED_ORIGINS',
+        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,https://gestion-360-spa.onrender.com,https://spa360digital.vercel.app,http://192.168.1.13:5173',
     ).split(',')
     if origin.strip()
 ]
 
 CSRF_COOKIE_SECURE = not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
 SESSION_COOKIE_SECURE = not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
+
+# En producción el frontend (spa360digital.vercel.app) y el backend
+# (gestion-360-spa.onrender.com) son orígenes distintos (cross-site). Para que
+# el navegador envíe la cookie de sesión en esas peticiones hay que marcarla
+# SameSite=None (obligatorio Secure=True, que ya se activa en producción).
+# En desarrollo con el proxy de Vite todo es mismo origen, así que Lax basta.
+_debug = os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
+SESSION_COOKIE_SAMESITE = 'Lax' if _debug else 'None'
+CSRF_COOKIE_SAMESITE = 'Lax' if _debug else 'None'
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
@@ -88,6 +113,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Apps de terceros
+    'corsheaders',
+
     # Apps propias del proyecto (backend/apps/<app>)
     'apps.empresas',
     'apps.servicios',
@@ -97,6 +125,9 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # CorsMiddleware debe ir lo más arriba posible (antes de CommonMiddleware)
+    # para que las respuestas a peticiones cross-origin incluyan las cabeceras CORS.
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
