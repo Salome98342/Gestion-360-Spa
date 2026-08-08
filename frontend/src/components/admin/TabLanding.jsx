@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import ColorControl from './ColorControl'
+import { FONT_CATEGORIES } from '../../utils/fonts'
 
 export default function TabLanding({ 
   form, updateForm, saveConfig, uploadImage, removeGalleryImage, 
@@ -71,6 +72,37 @@ export default function TabLanding({
           <label className="admin-checkbox-row">
             <input name="mostrar_precios" type="checkbox" checked={form.mostrar_precios} onChange={updateForm} />
             Mostrar precios en la landing
+          </label>
+        </div>
+      </section>
+
+<section>
+        <h2>Tipografía</h2>
+        <p className="admin-section-note">Elige las fuentes gratuitas (Google Fonts) que darán personalidad a tu landing y agenda.</p>
+        <div className="settings-grid">
+          <label>
+            Títulos
+            <select name="fuente_titulos" value={form.fuente_titulos} onChange={updateForm}>
+              {FONT_CATEGORIES.titles.options.map((op) => (
+                <option key={op.value} value={op.value}>{op.value}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Caligráfica / detalle
+            <select name="fuente_script" value={form.fuente_script} onChange={updateForm}>
+              {FONT_CATEGORIES.script.options.map((op) => (
+                <option key={op.value} value={op.value}>{op.value}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Texto / cuerpo
+            <select name="fuente_cuerpo" value={form.fuente_cuerpo} onChange={updateForm}>
+              {FONT_CATEGORIES.body.options.map((op) => (
+                <option key={op.value} value={op.value}>{op.value}</option>
+              ))}
+            </select>
           </label>
         </div>
       </section>

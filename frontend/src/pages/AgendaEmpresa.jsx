@@ -16,7 +16,7 @@ export default function AgendaEmpresa() {
     availableTimes,
     loadingTimes,
     success,
-    fieldErrors,
+fieldErrors,
     form,
     services,
     selectedService,
@@ -24,7 +24,8 @@ export default function AgendaEmpresa() {
     isFormValid,
     update,
     setFieldValue,
-    submit
+    submit,
+    // themeConfig
   } = useBooking(slug)
 
   if (!landing) {

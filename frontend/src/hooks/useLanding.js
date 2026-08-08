@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { landingPublico } from '../services/api' // Ajusta según tu estructura
 import { getThemeConfig } from '../utils/landingConstants'
+import { loadGoogleFonts } from '../utils/fonts'
 
 export function useLanding(slug) {
   const [data, setData] = useState(null)
@@ -24,10 +25,15 @@ export function useLanding(slug) {
     return () => { active = false }
   }, [slug])
 
+  // Cargar las fuentes elegidas por el negocio (Google Fonts OFL)
+  useEffect(() => {
+    if (data) loadGoogleFonts(data.landing)
+  }, [data])
+
   const openLightbox = (url) => setLightboxImage(url)
   const closeLightbox = () => setLightboxImage(null)
 
-  const themeConfig = data ? getThemeConfig(data.empresa) : {}
+  const themeConfig = data ? getThemeConfig(data.empresa, data.landing) : {}
 
   return {
     data,

@@ -1,8 +1,8 @@
 export default function Footer({ empresa, landing }) {
   return (
-    <footer id="contacto" className="tenant-footer">
+<footer id="contacto" className="tenant-footer">
       <div>
-        <p className="tenant-footer-label">Contáctanos</p>
+        <p className="tenant-footer-label"><i className="fas fa-spa"></i> Contáctanos</p>
         <strong>{empresa.nombre}</strong>
         <p>{landing.texto_footer || 'Reserva tu espacio y vive una experiencia de belleza renovada.'}</p>
       </div>

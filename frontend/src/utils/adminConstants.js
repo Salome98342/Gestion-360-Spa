@@ -18,6 +18,9 @@ export const initialForm = {
   tiktok_url: '',
   galeria_urls: [],
   mostrar_precios: true,
+  fuente_titulos: 'Playfair Display',
+  fuente_cuerpo: 'Poppins',
+  fuente_script: 'Great Vibes',
 }
 
 export const emptyServicio = { nombre: '', descripcion: '', precio: '', duracion_minutos: 30, icono: 'fa-hand-sparkles', activo: true, orden: 0 }

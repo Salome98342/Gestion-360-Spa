@@ -27,6 +27,7 @@ from .models import (
     Empresa,
     LicenciaToken,
     PlanLicencia,
+    sumar_meses,
 )
 
 
@@ -75,6 +76,9 @@ def _landing_a_dict(empresa, landing):
             "instagram_url": landing.instagram_url, "facebook_url": landing.facebook_url,
             "tiktok_url": landing.tiktok_url, "galeria_urls": landing.galeria_urls,
             "mostrar_precios": landing.mostrar_precios,
+            "fuente_titulos": landing.fuente_titulos,
+            "fuente_cuerpo": landing.fuente_cuerpo,
+            "fuente_script": landing.fuente_script,
         },
     }
 
@@ -131,6 +135,7 @@ class ConfiguracionLandingView(View):
         landing_fields = {
             "titulo_hero", "subtitulo_hero", "imagen_hero_url", "texto_footer",
             "instagram_url", "facebook_url", "tiktok_url", "mostrar_precios", "galeria_urls",
+            "fuente_titulos", "fuente_cuerpo", "fuente_script",
         }
         for field in empresa_fields & data.keys():
             setattr(empresa, field, data[field])

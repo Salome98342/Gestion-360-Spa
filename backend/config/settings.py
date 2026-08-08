@@ -135,13 +135,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # SQLite pisándolo). Debe existir un único diccionario DATABASES.
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
+    'default': dj_database_url.parse(
+        os.environ.get('DATABASE_URL'),
+        # Mantener las conexiones más cortas evita agotar el pool de Supabase
+        # (pool_size máx. 15 en modo session) cuando el servidor hace muchas
+        # peticiones. Cada conexión persistente ocupa un slot del pooler.
+        conn_max_age=60,
         conn_health_checks=True,
         ssl_require=True,  # Obligatorio para conexiones seguras en la nube como Supabase
     )
 }
+# Timeout de conexión para liberar slots del pool de Supabase si algo se cuelga.
+DATABASES['default']['OPTIONS'] = {'connect_timeout': 5}
 
 
 # Modelo de usuario personalizado (apps/usuarios/models.py -> Usuario)

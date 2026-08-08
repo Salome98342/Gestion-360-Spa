@@ -29,6 +29,9 @@ export default function Services({ servicios, showPrices }) {
             {showPrices && (
               <div className="tenant-price">
                 {formatMoney(service.precio)}
+                <span className="tenant-price-hint">
+                  <i className="far fa-clock"></i> {service.duracion_minutos} min
+                </span>
               </div>
             )}
           </article>

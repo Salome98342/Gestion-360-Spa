@@ -14,13 +14,16 @@ export default function Gallery({ urls, onImageClick }) {
       </div>
       <div className="tenant-gallery">
         {galleryUrls.map((url, index) => (
-          <button 
+<button 
             key={url} 
             type="button" 
             className="tenant-gallery-item" 
             onClick={() => onImageClick(url)}
           >
             <img src={url} alt={`Trabajo ${index + 1}`} />
+            <span className="tenant-gallery-overlay" aria-hidden="true">
+              <i className="fas fa-search-plus"></i>
+            </span>
           </button>
         ))}
       </div>

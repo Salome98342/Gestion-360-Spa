@@ -245,6 +245,9 @@ class ConfiguracionLanding(models.Model):
     tiktok_url = models.TextField(null=True, blank=True)
     galeria_urls = models.JSONField(default=list, blank=True)
     mostrar_precios = models.BooleanField(default=True)
+    fuente_titulos = models.TextField(default="Playfair Display")
+    fuente_cuerpo = models.TextField(default="Poppins")
+    fuente_script = models.TextField(default="Great Vibes")
     actualizado_en = models.DateTimeField(auto_now=True)
 
     def __str__(self):

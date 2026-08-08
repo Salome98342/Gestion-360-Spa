@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { disponibilidadCitas, landingPublico, reservarCita } from '../services/api' // Ajusta esta ruta según tu proyecto
+import { getThemeConfig } from '../utils/landingConstants'
+import { loadGoogleFonts } from '../utils/fonts'
 
 export function useBooking(slug) {
   const [landing, setLanding] = useState(null)
@@ -95,7 +97,7 @@ export function useBooking(slug) {
     }
   }
 
-  useEffect(() => {
+useEffect(() => {
     if (!form.fecha || !form.servicio_id) {
       setAvailableTimes([])
       return
@@ -110,6 +112,13 @@ export function useBooking(slug) {
       .catch((err) => setError(err.message))
       .finally(() => setLoadingTimes(false))
   }, [slug, form.fecha, form.servicio_id])
+
+  // Cargar las fuentes elegidas por el negocio (Google Fonts OFL)
+  useEffect(() => {
+    if (landing) loadGoogleFonts(landing.landing)
+  }, [landing])
+
+  const themeConfig = landing ? getThemeConfig(landing.empresa, landing.landing) : {}
 
   return {
     landing,
@@ -126,6 +135,7 @@ export function useBooking(slug) {
     isFormValid,
     update,
     setFieldValue,
-    submit
+    submit,
+    themeConfig
   }
 }
