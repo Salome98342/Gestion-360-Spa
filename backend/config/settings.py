@@ -172,7 +172,12 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Archivos subidos por cada empresa.  Se deja fuera del c\u00f3digo del frontend
 # para que las im\u00e1genes no se pierdan al generar una nueva compilaci\u00f3n.
