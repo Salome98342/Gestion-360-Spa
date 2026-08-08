@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         'DJANGO_CSRF_TRUSTED_ORIGINS',
-        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,http://127.0.0.1:8000',
+        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,http://127.0.0.1:8000,http://192.168.1.13:5173',
     ).split(',')
     if origin.strip()
 ]
@@ -51,6 +51,29 @@ SECURE_REFERRER_POLICY = 'same-origin'
 SECURE_HSTS_SECONDS = 31536000 if not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes') else 0
 SECURE_HSTS_INCLUDE_SUBDOMAINS = not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
 SECURE_HSTS_PRELOAD = not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
+
+# Forzar HTTPS en producción (redirect automático). En desarrollo se desactiva.
+# Si el despliegue está detrás de Nginx/Caddy que ya termina SSL, se debe
+# confiar en la cabecera X-Forwarded-Proto para no romper el redirect.
+SECURE_SSL_REDIRECT = not os.getenv('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes')
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# ── Rate limiting (en memoria, ver config/middleware.py) ──
+# Número máximo de peticiones mutantes permitidas por IP por ventana.
+# Se establecen límites más estrictos en los endpoints sensibles.
+RATE_LIMIT_DEFAULT_MAX_REQUESTS = 120
+RATE_LIMIT_DEFAULT_SECONDS = 60
+# OJO: el orden importa. El middleware elige la primera regla cuyo prefijo
+# coincida, así que los prefijos más específicos deben ir primero.
+RATE_LIMIT_RULES = {
+    # Subida de imágenes: máx. 10 por IP cada minuto (anti abuso).
+    "/api/empresas/configuracion/imagenes/": {"max": 10, "seconds": 60},
+    # Login: máx. 10 intentos por IP cada 5 minutos (anti fuerza bruta).
+    "/api/usuarios/login/": {"max": 10, "seconds": 300},
+    # Endpoints de empresa (incluye reserva de citas pública): máx. 5 por IP
+    # cada minuto (anti spam). Afecta sólo a métodos mutantes (POST/PUT/...).
+    "/api/empresas/": {"max": 5, "seconds": 60},
+}
 
 
 # Application definition
@@ -78,6 +101,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Middlewares de seguridad propios (config/middleware.py)
+    'config.middleware.SecurityHeadersMiddleware',
+    'config.middleware.RateLimitMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'

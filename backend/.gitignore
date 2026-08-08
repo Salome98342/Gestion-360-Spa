@@ -1,0 +1,17 @@
+# ── Secretos y variables de entorno ──
+# Nunca subir credenciales reales a un repositorio.
+.env
+.env.*
+!.env.example
+
+# ── Base de datos local ──
+*.sqlite3
+
+# ── Entorno virtual Python ──
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# ── Archivos temporales de diagnóstico ──
+tmp_*.py
