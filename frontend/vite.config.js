@@ -11,13 +11,13 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       proxy: {
         '/api': {
-          target: env.VITE_BACKEND_ORIGIN || 'http://127.0.0.1:8000',
+          target: env.VITE_BACKEND_ORIGIN || 'https://gestion-360-spa.onrender.com',
           changeOrigin: true,
         },
         // Las URLs de las imágenes se guardan como /images/<empresa>/archivo.
         // En desarrollo deben pasar por Django, igual que las peticiones API.
         '/images': {
-          target: env.VITE_BACKEND_ORIGIN || 'http://127.0.0.1:8000',
+          target: env.VITE_BACKEND_ORIGIN || 'https://gestion-360-spa.onrender.com',
           changeOrigin: true,
         },
       },

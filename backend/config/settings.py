@@ -33,13 +33,13 @@ ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'loc
 # Orígenes de confianza para CSRF.
 # El frontend (Vite en desarrollo) corre en localhost:5173 y, al pasar por el
 # proxy con changeOrigin=true, el Origin que llega al backend puede ser
-# http://127.0.0.1:8000. Se configuran ambos para cubrir los dos escenarios.
+# Se configuran ambos para cubrir los dos escenarios.
 # En producción se define vía variable de entorno DJANGO_CSRF_TRUSTED_ORIGINS.
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         'DJANGO_CSRF_TRUSTED_ORIGINS',
-        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,http://127.0.0.1:8000,http://192.168.1.13:5173',
+        'http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,https://gestion-360-spa.onrender.com,http://192.168.1.13:5173',
     ).split(',')
     if origin.strip()
 ]
