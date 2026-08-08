@@ -1,5 +1,7 @@
+import { resolveImageUrl } from '../../services/api'
+
 export default function Gallery({ urls, onImageClick }) {
-  const galleryUrls = (urls || []).filter(Boolean)
+  const galleryUrls = (urls || []).filter(Boolean).map(resolveImageUrl)
   
   if (galleryUrls.length === 0) return null
 

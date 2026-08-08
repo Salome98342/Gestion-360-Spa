@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import ColorControl from './ColorControl'
 import { FONT_CATEGORIES } from '../../utils/fonts'
+import { resolveImageUrl } from '../../services/api'
 
 export default function TabLanding({ 
   form, updateForm, saveConfig, uploadImage, removeGalleryImage, 
@@ -36,7 +37,7 @@ export default function TabLanding({
             <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => uploadImage(event, 'logo_url')} disabled={uploading === 'logo_url'} />
             <small>Se optimiza automáticamente a máximo 1 MB y 1024 px.</small>
             {uploading === 'logo_url' && <span className="image-upload-status">Optimizando y cargando...</span>}
-            {form.logo_url && <img className="image-upload-preview logo" src={form.logo_url} alt="Vista previa del logo" />}
+{form.logo_url && <img className="image-upload-preview logo" src={resolveImageUrl(form.logo_url)} alt="Vista previa del logo" />}
           </label>
           <ColorControl name="color_primario" label="Color principal" value={form.color_primario} onChange={updateForm} fallback="#db2777" />
           <ColorControl name="color_secundario" label="Color complementario" value={form.color_secundario} onChange={updateForm} fallback="#fff0f5" />
@@ -57,7 +58,7 @@ export default function TabLanding({
             <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => uploadImage(event, 'imagen_hero_url')} disabled={uploading === 'imagen_hero_url'} />
             <small>Se optimiza automáticamente antes de subirla.</small>
             {uploading === 'imagen_hero_url' && <span className="image-upload-status">Optimizando y cargando...</span>}
-            {form.imagen_hero_url && <img className="image-upload-preview hero" src={form.imagen_hero_url} alt="Vista previa de portada" />}
+{form.imagen_hero_url && <img className="image-upload-preview hero" src={resolveImageUrl(form.imagen_hero_url)} alt="Vista previa de portada" />}
           </label>
           <label className="full">Texto del footer<textarea name="texto_footer" value={form.texto_footer} onChange={updateForm} /></label>
         </div>
@@ -116,7 +117,7 @@ export default function TabLanding({
           {uploading === 'galeria_urls' && <span className="image-upload-status">Optimizando y cargando imágenes...</span>}
         </label>
         {(form.galeria_urls || []).length > 0 && <div className="gallery-upload-preview">
-          {form.galeria_urls.map((url) => <div key={url}><img src={url} alt="Imagen de galería" /><button type="button" onClick={() => removeGalleryImage(url)} aria-label="Quitar imagen">×</button></div>)}
+{form.galeria_urls.map((url) => <div key={url}><img src={resolveImageUrl(url)} alt="Imagen de galería" /><button type="button" onClick={() => removeGalleryImage(url)} aria-label="Quitar imagen">×</button></div>)}
         </div>}
       </section>
 

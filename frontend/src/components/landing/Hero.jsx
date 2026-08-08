@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { HERO_DEFAULT } from '../../utils/landingConstants'
+import { resolveImageUrl } from '../../services/api'
 
 function splitTitle(title) {
   if (!title) return { before: '', accent: '' }
@@ -37,9 +38,9 @@ export default function Hero({ empresa, landing, slug }) {
         </div>
 
         <div className="tenant-hero-media">
-          <img 
+<img 
             className="tenant-hero-image" 
-            src={landing.imagen_hero_url || HERO_DEFAULT} 
+            src={resolveImageUrl(landing.imagen_hero_url || HERO_DEFAULT)} 
             alt={landing.titulo_hero || empresa.nombre} 
           />
           <div className="tenant-badge badge-top">

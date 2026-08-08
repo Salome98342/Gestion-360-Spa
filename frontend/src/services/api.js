@@ -1,8 +1,29 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
+// En desarrollo el proxy de Vite (vite.config.js) reenvía /api al backend,
+// por eso en dev usamos la ruta relativa (mismo origen). En producción el
+// frontend (Vercel) y el backend (Render) son orígenes distintos, así que hay
+// que apuntar directamente a la API del backend. Se puede sobreescribir con
+// VITE_API_BASE_URL.
+const DEV = import.meta.env.DEV
+const PROD_BACKEND = 'https://gestion-360-spa.onrender.com'
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (DEV ? '/api' : `${PROD_BACKEND}/api`)
+).replace(/\/$/, '')
 const USERS_ROUTE = import.meta.env.VITE_API_USUARIOS_ROUTE || '/usuarios'
 const COMPANIES_ROUTE = import.meta.env.VITE_API_EMPRESAS_ROUTE || '/empresas'
 const SALES_ROUTE = import.meta.env.VITE_API_VENTAS_ROUTE || '/ventas'
 const SERVICES_ROUTE = import.meta.env.VITE_API_SERVICIOS_ROUTE || '/servicios'
+
+// Resuelve rutas de imágenes del backend (/images/...) a URLs absolutas.
+// En desarrollo el proxy de Vite sirve /images desde el backend (mismo origen).
+// En producción hay que anteponer el origen del backend a la ruta.
+export function resolveImageUrl(url) {
+  if (!url) return url
+  // Ya es absoluta (https://... o data:), se devuelve tal cual.
+  if (/^(https?:|data:|blob:)/.test(url)) return url
+  // Ruta relativa → en dev el proxy la resuelve, en prod apuntamos al backend.
+  return DEV ? url : `${PROD_BACKEND}${url.startsWith('/') ? url : `/${url}`}`
+}
 
 function csrfToken() {
   return document.cookie.split('; ').find((row) => row.startsWith('csrftoken='))?.split('=')[1]
