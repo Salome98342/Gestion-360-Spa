@@ -366,7 +366,178 @@
     .admin-welcome-card { 
         padding: 1rem; 
     } 
-    .whatsapp-confirm { 
+.whatsapp-confirm { 
         white-space: nowrap; 
+    } 
+}
+
+/* Ventana emergente de servicio vencido */
+.service-expired-overlay { 
+    position: fixed; 
+    inset: 0; 
+    z-index: 1000; 
+    display: grid; 
+    place-items: center; 
+    padding: 1.25rem; 
+    background: rgba(15, 23, 42, 0.55); 
+    backdrop-filter: blur(4px); 
+    animation: service-expired-fade 0.25s ease; 
+}
+
+.service-expired-modal { 
+    position: relative; 
+    width: min(100%, 460px); 
+    background: #ffffff; 
+    border-radius: 26px; 
+    padding: 2.25rem 2rem 1.75rem; 
+    text-align: center; 
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25); 
+    animation: service-expired-pop 0.3s ease; 
+}
+
+.service-expired-close { 
+    position: absolute; 
+    top: 0.9rem; 
+    right: 1rem; 
+    width: 2.2rem; 
+    height: 2.2rem; 
+    border: none; 
+    border-radius: 999px; 
+    background: #f1f5f9; 
+    color: #475569; 
+    font-size: 1.4rem; 
+    line-height: 1; 
+    cursor: pointer; 
+    transition: background-color 0.2s ease, color 0.2s ease; 
+}
+
+.service-expired-close:hover { 
+    background: #fee2e2; 
+    color: #b91c1c; 
+}
+
+.service-expired-icon { 
+    width: 64px; 
+    height: 64px; 
+    margin: 0 auto 1rem; 
+    display: grid; 
+    place-items: center; 
+    border-radius: 20px; 
+    background: #fef3c7; 
+    color: #b45309; 
+    font-size: 1.7rem; 
+}
+
+.service-expired-modal h2 { 
+    margin: 0 0 0.75rem; 
+    font-size: 1.5rem; 
+    font-weight: 800; 
+    color: #0f172a; 
+}
+
+.service-expired-text { 
+    margin: 0 0 1.5rem; 
+    color: #475569; 
+    line-height: 1.6; 
+}
+
+.service-expired-actions { 
+    display: grid; 
+    gap: 0.85rem; 
+    margin-bottom: 1.25rem; 
+}
+
+.service-expired-wa { 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 0.6rem; 
+    padding: 0.95rem 1.25rem; 
+    border-radius: 16px; 
+    font-weight: 700; 
+    text-decoration: none; 
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease; 
+}
+
+.service-expired-wa i { 
+    font-size: 1.15rem; 
+}
+
+.service-expired-wa.reactivar { 
+    background: #25d366; 
+    color: #ffffff; 
+}
+
+.service-expired-wa.reactivar:hover { 
+    background: #1ebe5b; 
+    transform: translateY(-1px); 
+}
+
+.service-expired-wa.soporte { 
+    background: #f0fdf4; 
+    color: #15803d; 
+    border: 1px solid #bbf7d0; 
+}
+
+.service-expired-wa.soporte:hover { 
+    background: #dcfce7; 
+    transform: translateY(-1px); 
+}
+
+.service-expired-ok { 
+    border: none; 
+    background: transparent; 
+    color: #64748b; 
+    font-weight: 600; 
+    cursor: pointer; 
+    padding: 0.4rem 0.8rem; 
+    transition: color 0.2s ease; 
+}
+
+.service-expired-ok:hover { 
+    color: #0f172a; 
+}
+
+@keyframes service-expired-fade { 
+    from { opacity: 0; } 
+    to { opacity: 1; } 
+}
+
+@keyframes service-expired-pop { 
+    from { opacity: 0; transform: translateY(16px) scale(0.96); } 
+    to { opacity: 1; transform: translateY(0) scale(1); } 
+}
+
+@media (max-width: 480px) { 
+    .service-expired-modal { 
+        padding: 1.75rem 1.25rem 1.5rem; 
+    } 
+}
+
+/* Botón de contacto al staff en el panel admin */
+.admin-head-actions { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 0.75rem; 
+}
+
+.tenant-button.contact-staff { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 0.55rem; 
+    background: #25d366; 
+    color: #ffffff; 
+}
+
+.tenant-button.contact-staff:hover { 
+    background: #1ebe5b; 
+}
+
+@media (max-width: 760px) { 
+    .admin-head-actions { 
+        width: 100%; 
+    } 
+    .admin-head-actions .tenant-button { 
+        flex: 1 1 100%; 
     } 
 }

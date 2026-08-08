@@ -73,7 +73,10 @@ class LoginView(View):
 
         if not usuario.puede_administrar_empresa:
             return JsonResponse(
-                {"error": "Este usuario no tiene acceso activo (revisa la licencia de la empresa)."},
+                {
+                    "error": "Este usuario no tiene acceso activo (revisa la licencia de la empresa).",
+                    "licencia_inactiva": True,
+                },
                 status=403,
             )
 

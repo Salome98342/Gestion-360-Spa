@@ -15,7 +15,8 @@ export default function DashboardAdmin() {
     authenticate, logout, saveConfig, uploadImage, removeGalleryImage, confirmarPorWhatsApp,
     servicios, servicioForm, updateServicio, startEditServicio, resetServicioForm, submitServicio, removeServicio, editingServicioId, servicioError, servicioSaving,
     productos, productoForm, updateProducto, submitProducto, productoError, productoSaving,
-    citas, citasError, loadCitas
+    citas, citasError, loadCitas,
+    servicioVencido, setServicioVencido
   } = useAdmin(slug)
 
   if (loading && !user) {
@@ -29,7 +30,7 @@ export default function DashboardAdmin() {
   }
 
   if (!user) {
-    return <LoginScreen slug={slug} login={login} setLogin={setLogin} authenticate={authenticate} error={error} />
+    return <LoginScreen slug={slug} login={login} setLogin={setLogin} authenticate={authenticate} error={error} servicioVencido={servicioVencido} setServicioVencido={setServicioVencido} />
   }
 
   const tabs = [
@@ -49,9 +50,19 @@ export default function DashboardAdmin() {
               <h1 className="admin-page-title">Panel del negocio</h1>
               <p className="tenant-muted">Administrando {user.empresa_nombre}.</p>
             </div>
-            <button type="button" onClick={logout} className="tenant-button secondary">
-              Cerrar sesión
-            </button>
+            <div className="admin-head-actions">
+              <a
+                href="https://wa.me/573187752351?text=Hola%2C%20necesito%20contactar%20con%20el%20staff%20de%20soporte%20de%20la%20plataforma."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tenant-button contact-staff"
+              >
+                <i className="fab fa-whatsapp"></i> Contactar al staff
+              </a>
+              <button type="button" onClick={logout} className="tenant-button secondary">
+                Cerrar sesión
+              </button>
+            </div>
           </div>
 
           <nav className="admin-tabs">

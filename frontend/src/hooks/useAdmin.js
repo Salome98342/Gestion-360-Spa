@@ -27,6 +27,7 @@ export function useAdmin(slug) {
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState('')
   const [loading, setLoading] = useState(true)
+  const [servicioVencido, setServicioVencido] = useState(false)
 
   // Servicios
   const [servicios, setServicios] = useState([])
@@ -174,11 +175,16 @@ export function useAdmin(slug) {
   async function authenticate(event) {
     event.preventDefault()
     setError('')
+    setServicioVencido(false)
     try {
       await iniciarSesion({ ...login, empresa_slug: slug })
       await loadConfig()
     } catch (err) {
-      setError(err.message)
+      if (err && err.licencia_inactiva) {
+        setServicioVencido(true)
+      } else {
+        setError(err.message)
+      }
     }
   }
 
@@ -316,6 +322,7 @@ export function useAdmin(slug) {
     authenticate, logout, saveConfig, uploadImage, removeGalleryImage, confirmarPorWhatsApp,
     servicios, servicioForm, updateServicio, startEditServicio, resetServicioForm, submitServicio, removeServicio, editingServicioId, servicioError, servicioSaving,
     productos, productoForm, updateProducto, resetProductoForm, submitProducto, productoError, productoSaving,
-    citas, citasError, loadCitas
+    citas, citasError, loadCitas,
+    servicioVencido, setServicioVencido
   }
 }

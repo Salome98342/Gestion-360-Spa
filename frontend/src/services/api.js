@@ -28,7 +28,11 @@ export async function api(path, options = {}) {
     body: body ? JSON.stringify(body) : undefined,
   })
   const payload = await response.json().catch(() => ({}))
-  if (!response.ok) throw new Error(payload.error || `Error ${response.status}`)
+  if (!response.ok) {
+    const err = new Error(payload.error || `Error ${response.status}`)
+    Object.assign(err, payload)
+    throw err
+  }
   return payload
 }
 
